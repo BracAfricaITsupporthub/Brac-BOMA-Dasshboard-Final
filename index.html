@@ -267,6 +267,8 @@
             return "";
         }
 
+        function norm(v) { return String(v == null ? '' : v).trim().toLowerCase(); }
+
         function safeDate(v) {
             if (!v) return '';
             const d = new Date(v);
@@ -349,42 +351,45 @@
             docsBOMA = newBOMA; docsBRAC = newBRAC;
             document.getElementById('badge-docs').innerText = docsBOMA.length + docsBRAC.length;
 
+            boqPhasesData.forEach(b => { b.attachment = ''; b.fileData = ''; });
             (rows.boqPhases || []).forEach(row => {
                 const refId = String(getVal(row, ['Ref ID', 'Ref']) || '');
                 const phaseName = String(getVal(row, ['Phase Name', 'Item Description']) || '');
-                const match = boqPhasesData.find(b => (refId && b.id === refId) || b.item === phaseName);
+                const match = boqPhasesData.find(b => (refId && norm(b.id) === norm(refId)) || (phaseName && norm(b.item) === norm(phaseName)));
                 if (!match) return;
                 const url = getVal(row, ['File URL']);
                 const status = getVal(row, ['Status']);
                 const notes = getVal(row, ['Notes']);
                 const conf = getVal(row, ['Confirmation']);
-                match.attachment = url ? String(getVal(row, ['File Name']) || 'Attached File') : ''; match.fileData = url ? String(url) : '';
+                if (url) { match.attachment = String(getVal(row, ['File Name']) || 'Attached File'); match.fileData = String(url); }
                 if (status) match.status = String(status);
                 if (conf) match.confirmed = String(conf);
                 if (notes !== '' && notes !== undefined) match.comment = String(notes);
             });
 
+            internalDeliberations.forEach(d => { d.docLink = ''; d.fileData = ''; });
             (rows.internalDelib || []).forEach(row => {
                 const refCode = String(getVal(row, ['Ref Code', 'Ref', 'ID']) || '');
                 const topic = String(getVal(row, ['Topic']) || '');
-                const match = internalDeliberations.find(d => d.id === refCode || d.topic === topic);
+                const match = internalDeliberations.find(d => (refCode && norm(d.id) === norm(refCode)) || (topic && norm(d.topic) === norm(topic)));
                 if (!match) return;
                 const url = getVal(row, ['File URL']);
                 const status = getVal(row, ['Status']);
                 const notes = getVal(row, ['Notes']);
-                match.docLink = url ? String(getVal(row, ['File Name']) || 'Attached File') : ''; match.fileData = url ? String(url) : '';
+                if (url) { match.docLink = String(getVal(row, ['File Name']) || 'Attached File'); match.fileData = String(url); }
                 if (status) match.status = String(status);
                 if (notes !== '' && notes !== undefined) match.notes = String(notes);
             });
 
+            procurementTranches.forEach(t => { t.doc = ''; t.fileData = ''; });
             (rows.procTranches || []).forEach(row => {
                 const title = String(getVal(row, ['Tranche Title', 'Title']) || '');
-                const match = procurementTranches.find(t => t.title === title);
+                const match = procurementTranches.find(t => norm(t.title) === norm(title));
                 if (!match) return;
                 const url = getVal(row, ['File URL']);
                 const status = getVal(row, ['Status']);
                 const comments = getVal(row, ['Comments']);
-                match.doc = url ? String(getVal(row, ['File Name']) || 'Attached Invoice') : ''; match.fileData = url ? String(url) : '';
+                if (url) { match.doc = String(getVal(row, ['File Name']) || 'Attached Invoice'); match.fileData = String(url); }
                 if (status) match.status = String(status);
                 if (comments !== '' && comments !== undefined) match.comments = String(comments);
             });
