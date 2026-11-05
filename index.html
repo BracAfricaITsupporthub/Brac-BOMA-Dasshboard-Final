@@ -358,7 +358,7 @@
                 const status = getVal(row, ['Status']);
                 const notes = getVal(row, ['Notes']);
                 const conf = getVal(row, ['Confirmation']);
-                if (url) { match.attachment = String(getVal(row, ['File Name']) || 'Attached File'); match.fileData = String(url); }
+                match.attachment = url ? String(getVal(row, ['File Name']) || 'Attached File') : ''; match.fileData = url ? String(url) : '';
                 if (status) match.status = String(status);
                 if (conf) match.confirmed = String(conf);
                 if (notes !== '' && notes !== undefined) match.comment = String(notes);
@@ -372,7 +372,7 @@
                 const url = getVal(row, ['File URL']);
                 const status = getVal(row, ['Status']);
                 const notes = getVal(row, ['Notes']);
-                if (url) { match.docLink = String(getVal(row, ['File Name']) || 'Attached File'); match.fileData = String(url); }
+                match.docLink = url ? String(getVal(row, ['File Name']) || 'Attached File') : ''; match.fileData = url ? String(url) : '';
                 if (status) match.status = String(status);
                 if (notes !== '' && notes !== undefined) match.notes = String(notes);
             });
@@ -384,7 +384,7 @@
                 const url = getVal(row, ['File URL']);
                 const status = getVal(row, ['Status']);
                 const comments = getVal(row, ['Comments']);
-                if (url) { match.doc = String(getVal(row, ['File Name']) || 'Attached Invoice'); match.fileData = String(url); }
+                match.doc = url ? String(getVal(row, ['File Name']) || 'Attached Invoice') : ''; match.fileData = url ? String(url) : '';
                 if (status) match.status = String(status);
                 if (comments !== '' && comments !== undefined) match.comments = String(comments);
             });
@@ -679,13 +679,37 @@
                 </div>`;
         }
 
-        function attachButton(name, data, uploadCall, cls) {
+        function attachButton(name, data, uploadCall, cls, clearCall) {
             const i = regFile(name, 'FILE', data);
             return `
                 <div class="flex items-center space-x-1">
-                    <button onclick="openRef(${i})" class="truncate max-w-[100px] px-2 py-1 ${cls} font-semibold rounded-lg border text-[10px]" title="${esc(name)}">${esc(name)}</button>
-                    <button onclick="${uploadCall}" class="text-slate-400 hover:text-slate-600 p-1" title="Re-upload"><i class="fa-solid fa-arrows-rotate"></i></button>
+                    <button onclick="openRef(${i})" class="truncate max-w-[90px] px-2 py-1 ${cls} font-semibold rounded-lg border text-[10px]" title="${esc(name)}">${esc(name)}</button>
+                    <button onclick="${uploadCall}" class="text-slate-400 hover:text-slate-600 p-1" title="Replace file"><i class="fa-solid fa-arrows-rotate"></i></button>
+                    <button onclick="${clearCall}" class="text-rose-500 hover:text-rose-700 p-1" title="Delete file"><i class="fa-solid fa-trash-can"></i></button>
                 </div>`;
+        }
+
+        function clearAttach(ws, id) {
+            if (!confirm('Delete this attached file for everyone?')) return;
+            let payload = { action: 'clearFile', workspace: ws };
+            if (ws === '2') {
+                const it = boqPhasesData.find(x => x.id === id);
+                if (!it) return;
+                it.attachment = ''; it.fileData = '';
+                payload.refId = it.id; payload.phaseName = it.item;
+            } else if (ws === '3') {
+                const it = internalDeliberations.find(x => x.id === id);
+                if (!it) return;
+                it.docLink = ''; it.fileData = '';
+                payload.refCode = it.id; payload.topic = it.topic;
+            } else if (ws === '4') {
+                const it = procurementTranches.find(x => String(x.id) === String(id));
+                if (!it) return;
+                it.doc = ''; it.fileData = '';
+                payload.trancheTitle = it.title;
+            }
+            renderActiveWorkspace();
+            syncToGoogleSheets(payload);
         }
 
         function renderWorkspace1(container) {
@@ -771,7 +795,7 @@
                                         <td class="p-3"><input type="text" value="${esc(i.comment)}" onchange="saveBoq(${i.globalIdx}, 'comment', this.value)" class="w-full bg-slate-50 border rounded-lg px-2 py-1 text-xs"></td>
                                         <td class="p-3 pr-5">
                                             ${i.attachment
-                                                ? attachButton(i.attachment, i.fileData, `triggerUploadFor('2','${i.id}')`, 'bg-emerald-50 text-emerald-700 border-emerald-200')
+                                                ? attachButton(i.attachment, i.fileData, `triggerUploadFor('2','${i.id}')`, 'bg-emerald-50 text-emerald-700 border-emerald-200', `clearAttach('2','${i.id}')`)
                                                 : `<button onclick="triggerUploadFor('2', '${i.id}')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold border flex items-center gap-1"><i class="fa-solid fa-upload text-[10px]"></i><span>Attach</span></button>`}
                                         </td>
                                     </tr>`).join('')}
@@ -802,7 +826,7 @@
                     <td class="p-4 text-slate-600 text-xs"><input type="text" value="${esc(item.notes)}" onchange="saveInternal(${idx}, 'notes', this.value)" class="w-full bg-slate-50 border rounded-lg p-2 text-xs"></td>
                     <td class="p-4 pr-5">
                         ${item.docLink
-                            ? attachButton(item.docLink, item.fileData, `triggerUploadFor('3','${item.id}')`, 'bg-amber-50 text-amber-800 border-amber-200')
+                            ? attachButton(item.docLink, item.fileData, `triggerUploadFor('3','${item.id}')`, 'bg-amber-50 text-amber-800 border-amber-200', `clearAttach('3','${item.id}')`)
                             : `<button onclick="triggerUploadFor('3', '${item.id}')" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold border"><i class="fa-solid fa-upload mr-1"></i> Attach</button>`}
                     </td>
                 </tr>`).join('');
@@ -880,7 +904,7 @@
                     </td>
                     <td class="p-4">
                         ${t.doc
-                            ? attachButton(t.doc, t.fileData, `triggerUploadFor('4','${t.id}')`, 'bg-emerald-50 text-emerald-700 border-emerald-200')
+                            ? attachButton(t.doc, t.fileData, `triggerUploadFor('4','${t.id}')`, 'bg-emerald-50 text-emerald-700 border-emerald-200', `clearAttach('4','${t.id}')`)
                             : `<button onclick="triggerUploadFor('4', '${t.id}')" class="px-3 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-xs font-semibold hover:bg-emerald-100"><i class="fa-solid fa-upload mr-1"></i> Upload File</button>`}
                     </td>
                     <td class="p-4 pr-5"><input type="text" placeholder="Enter offset note or comment..." value="${esc(t.comments)}" onchange="saveTranche(${idx}, 'comments', this.value)" class="w-full bg-slate-50 border rounded-lg p-2 text-xs"></td>
