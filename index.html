@@ -108,7 +108,7 @@
                 <div class="text-slate-300 text-[11px] leading-relaxed">
                     Total Budget: <strong class="text-white font-mono">KES 24,782,414</strong><br>
                     Disbursed To Date: <strong class="text-rose-400 font-mono">KES 0 (0%)</strong><br>
-                    <span class="text-slate-400">(Incl. 16% VAT KES 3,418,264)</span>
+                    <span class="text-slate-400">(Incl. 16% VAT KES 3,418,264)</span><br><span class="text-slate-600">Dashboard build D</span>
                 </div>
             </div>
         </aside>
@@ -208,6 +208,8 @@
         let pendingDelete = null;
         let uploadTargetContext = null;
         let pendingSyncs = 0;          // >0 while our own writes are still travelling to the sheet
+        let pendingAttach = {};        // uploads not yet confirmed by the sheet
+        let pendingClear = {};         // deletions not yet confirmed by the sheet
         let fileRegistry = [];         // safe lookup table for inline onclick handlers
 
         const PIN_BRAC = "AFRICABRAC2026";
@@ -394,6 +396,30 @@
                 if (comments !== '' && comments !== undefined) match.comments = String(comments);
             });
 
+            // Keep local uploads/deletions visible until the sheet has caught up
+            const nowTs = Date.now();
+            const findItem = (ws, id) => ws === '2' ? boqPhasesData.find(x => String(x.id) === id)
+                : ws === '3' ? internalDeliberations.find(x => String(x.id) === id)
+                : procurementTranches.find(x => String(x.id) === id);
+            const setName = (ws, it, name, url) => {
+                if (ws === '2') { it.attachment = name; } else if (ws === '3') { it.docLink = name; } else { it.doc = name; }
+                it.fileData = url;
+            };
+            Object.keys(pendingAttach).forEach(k => {
+                const [ws, id] = k.split('|');
+                const p = pendingAttach[k];
+                const it = findItem(ws, id);
+                if (!it) { delete pendingAttach[k]; return; }
+                if (it.fileData && it.fileData !== p.old) { delete pendingAttach[k]; return; }   // sheet confirmed
+                if (nowTs - p.ts < 120000) setName(ws, it, p.name, ''); else delete pendingAttach[k];
+            });
+            Object.keys(pendingClear).forEach(k => {
+                const [ws, id] = k.split('|');
+                const it = findItem(ws, id);
+                if (!it || !it.fileData) { delete pendingClear[k]; return; }                      // sheet confirmed
+                if (nowTs - pendingClear[k] < 60000) setName(ws, it, '', ''); else delete pendingClear[k];
+            });
+
             // Don't wipe what someone is typing / choosing right now
             const ae = document.activeElement;
             const editing = ae && ['INPUT', 'SELECT', 'TEXTAREA'].includes(ae.tagName) && document.getElementById('main-content').contains(ae);
@@ -457,13 +483,13 @@
                     document.getElementById('badge-docs').innerText = docsBOMA.length + docsBRAC.length;
                 } else if (target.workspace === '2') {
                     const item = boqPhasesData.find(x => x.id === target.refId);
-                    if (item) { payload.refId = item.id; payload.phaseName = item.item; payload.status = item.status; payload.confirmation = item.confirmed; payload.notes = item.comment; item.attachment = file.name; item.fileData = ''; }
+                    if (item) { payload.refId = item.id; payload.phaseName = item.item; payload.status = item.status; payload.confirmation = item.confirmed; payload.notes = item.comment; pendingAttach['2|' + item.id] = { name: file.name, old: item.fileData || '', ts: Date.now() }; item.attachment = file.name; item.fileData = ''; }
                 } else if (target.workspace === '3') {
                     const item = internalDeliberations.find(x => x.id === target.refId);
-                    if (item) { payload.refCode = item.id; payload.topic = item.topic; payload.owner = item.owner; payload.status = item.status; payload.notes = item.notes; item.docLink = file.name; item.fileData = ''; }
+                    if (item) { payload.refCode = item.id; payload.topic = item.topic; payload.owner = item.owner; payload.status = item.status; payload.notes = item.notes; pendingAttach['3|' + item.id] = { name: file.name, old: item.fileData || '', ts: Date.now() }; item.docLink = file.name; item.fileData = ''; }
                 } else if (target.workspace === '4') {
                     const item = procurementTranches.find(x => String(x.id) === String(target.refId));
-                    if (item) { payload.trancheTitle = item.title; payload.amount = item.amount; payload.status = item.status; payload.comments = item.comments; item.doc = file.name; item.fileData = ''; }
+                    if (item) { payload.trancheTitle = item.title; payload.amount = item.amount; payload.status = item.status; payload.comments = item.comments; pendingAttach['4|' + item.id] = { name: file.name, old: item.fileData || '', ts: Date.now() }; item.doc = file.name; item.fileData = ''; }
                 }
                 renderActiveWorkspace();
                 syncToGoogleSheets(payload);
@@ -696,6 +722,8 @@
 
         function clearAttach(ws, id) {
             if (!confirm('Delete this attached file for everyone?')) return;
+            pendingClear[ws + '|' + id] = Date.now();
+            delete pendingAttach[ws + '|' + id];
             let payload = { action: 'clearFile', workspace: ws };
             if (ws === '2') {
                 const it = boqPhasesData.find(x => x.id === id);
