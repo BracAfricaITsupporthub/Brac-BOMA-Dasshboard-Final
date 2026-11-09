@@ -10,8 +10,9 @@
             theme: {
                 extend: {
                     colors: {
-                        navy: { 800: '#1e3a8a', 900: '#1F497D', 950: '#0f172a' },
-                        brand: { 500: '#f97316', 600: '#ea580c' }
+                        navy: { 800: '#69475A', 900: '#4A3443', 950: '#30252F' },
+                        brand: { 100: '#F6EAF0', 200: '#E8CCD9', 500: '#A94E73', 600: '#873A5D', 700: '#6E304B' },
+                        canvas: '#F4F3F0'
                     }
                 }
             }
@@ -22,11 +23,11 @@
     <style>
         body { font-family: 'Inter', sans-serif; }
         .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #e9e8e4; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #c8c8c4; border-radius: 4px; }
     </style>
 </head>
-<body class="h-full bg-slate-100 text-slate-800 antialiased flex flex-col">
+<body class="h-full bg-canvas text-slate-800 antialiased flex flex-col">
 
     <div id="sidebar-overlay" onclick="toggleMobileSidebar()" class="fixed inset-0 bg-slate-900/60 z-30 hidden lg:hidden backdrop-blur-sm transition-opacity"></div>
 
@@ -35,8 +36,8 @@
             <button onclick="toggleMobileSidebar()" class="lg:hidden text-white hover:text-brand-500 p-1.5 focus:outline-none">
                 <i class="fa-solid fa-bars text-xl"></i>
             </button>
-            <div class="bg-brand-500 text-white p-2 lg:p-2.5 rounded-xl shadow">
-                <i class="fa-solid fa-shield-halved text-lg lg:text-xl"></i>
+            <div class="bg-white p-1.5 rounded-lg shadow-sm shrink-0">
+                <img src="./assets/brac-logo.png" alt="BRAC" class="block w-16 lg:w-20 h-auto">
             </div>
             <div>
                 <h1 class="font-bold text-sm lg:text-lg leading-tight">BRAC-BOMA CONTRACT DASHBOARD TRACKER</h1>
@@ -48,11 +49,11 @@
             <span id="sync-status" class="text-[10px] lg:text-xs bg-slate-700/60 text-slate-200 border border-slate-500/40 px-2.5 py-1 rounded-lg font-semibold flex items-center gap-1.5">
                 <i class="fa-solid fa-cloud text-xs"></i><span id="sync-status-text">Connecting...</span>
             </span>
-            <span class="text-[10px] lg:text-xs bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2.5 py-1 rounded-lg font-semibold flex items-center gap-1.5">
+            <span class="text-[10px] lg:text-xs bg-brand-500/15 text-brand-100 border border-brand-100/20 px-2.5 py-1 rounded-lg font-semibold flex items-center gap-1.5">
                 <i class="fa-solid fa-clock text-xs"></i>
                 Stage: Pre-Commencement Approval (Version 6 Settled)
             </span>
-            <button id="btn-lock-all" onclick="lockAllSessions()" class="hidden bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold px-3 py-1.5 rounded-xl transition-colors shadow flex items-center space-x-1">
+            <button id="btn-lock-all" onclick="lockAllSessions()" class="hidden bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold px-3 py-1.5 rounded-xl transition-colors shadow flex items-center space-x-1">
                 <i class="fa-solid fa-lock"></i>
                 <span class="hidden sm:inline">Lock Active Sessions</span>
             </button>
@@ -60,7 +61,7 @@
     </header>
 
     <div class="flex-1 flex overflow-hidden relative">
-        <aside id="sidebar-drawer" class="fixed lg:static inset-y-0 left-0 w-72 lg:w-80 bg-slate-900 text-slate-300 flex flex-col justify-between shrink-0 border-r border-slate-800 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-40">
+        <aside id="sidebar-drawer" class="fixed lg:static inset-y-0 left-0 w-72 lg:w-80 bg-navy-950 text-slate-300 flex flex-col justify-between shrink-0 border-r border-navy-800 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-40">
             <nav class="p-4 space-y-2 overflow-y-auto custom-scrollbar">
                 <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-2 flex justify-between items-center">
                     <span>Workspaces Navigation</span>
@@ -75,45 +76,45 @@
                     <span id="badge-docs" class="bg-navy-800 text-xs px-2 py-0.5 rounded-full font-mono">0</span>
                 </button>
 
-                <button onclick="switchTab('contract')" id="nav-contract" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
+                <button onclick="switchTab('contract')" id="nav-contract" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-semibold text-slate-400 hover:bg-navy-800 hover:text-white transition-all">
                     <div class="flex items-center space-x-3">
-                        <i class="fa-solid fa-list-check text-blue-400 text-base"></i>
+                        <i class="fa-solid fa-list-check text-brand-500 text-base"></i>
                         <span class="text-left">2) Contract Tracker (BoQ Phases)</span>
                     </div>
-                    <span class="bg-slate-800 text-xs px-2 py-0.5 rounded-full font-mono">18</span>
+                    <span class="bg-navy-800 text-xs px-2 py-0.5 rounded-full font-mono">18</span>
                 </button>
 
-                <button onclick="switchTab('internal')" id="nav-internal" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
+                <button onclick="switchTab('internal')" id="nav-internal" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-semibold text-slate-400 hover:bg-navy-800 hover:text-white transition-all">
                     <div class="flex items-center space-x-3">
-                        <i class="fa-solid fa-user-lock text-amber-400 text-base"></i>
+                        <i class="fa-solid fa-user-lock text-brand-200 text-base"></i>
                         <span class="text-left">3) BRAC Internal Tracker (ToR Specs)</span>
                     </div>
-                    <i id="lock-icon-internal" class="fa-solid fa-lock text-amber-400 text-xs"></i>
+                    <i id="lock-icon-internal" class="fa-solid fa-lock text-brand-200 text-xs"></i>
                 </button>
 
-                <button onclick="switchTab('payments')" id="nav-payments" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
+                <button onclick="switchTab('payments')" id="nav-payments" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-semibold text-slate-400 hover:bg-navy-800 hover:text-white transition-all">
                     <div class="flex items-center space-x-3">
-                        <i class="fa-solid fa-sack-dollar text-emerald-400 text-base"></i>
+                        <i class="fa-solid fa-sack-dollar text-brand-200 text-base"></i>
                         <span class="text-left">4) Procurement & Payments</span>
                     </div>
-                    <i id="lock-icon-payments" class="fa-solid fa-lock text-emerald-400 text-xs"></i>
+                    <i id="lock-icon-payments" class="fa-solid fa-lock text-brand-200 text-xs"></i>
                 </button>
             </nav>
 
-            <div class="p-4 bg-slate-950 border-t border-slate-800 text-xs space-y-2">
+            <div class="p-4 bg-navy-950 border-t border-navy-800 text-xs space-y-2">
                 <div class="flex items-center justify-between">
                     <span class="text-slate-400 font-semibold">Settled V6 BoQ</span>
-                    <span class="text-emerald-400 font-bold bg-emerald-950 border border-emerald-800 px-2 py-0.5 rounded">Option 04 Layout</span>
+                    <span class="text-brand-100 font-bold bg-brand-500/15 border border-brand-100/20 px-2 py-0.5 rounded">Option 04 Layout</span>
                 </div>
                 <div class="text-slate-300 text-[11px] leading-relaxed">
                     Total Budget: <strong class="text-white font-mono">KES 24,782,414</strong><br>
-                    Disbursed To Date: <strong class="text-rose-400 font-mono">KES 0 (0%)</strong><br>
+                    Disbursed To Date: <strong class="text-slate-300 font-mono">KES 0 (0%)</strong><br>
                     <span class="text-slate-400">(Incl. 16% VAT KES 3,418,264)</span><br><span class="text-slate-600">Dashboard build D</span>
                 </div>
             </div>
         </aside>
 
-        <main class="flex-1 flex flex-col overflow-hidden bg-slate-100">
+        <main class="flex-1 flex flex-col overflow-hidden bg-canvas">
             <div class="flex-1 p-4 lg:p-6 overflow-y-auto space-y-6 custom-scrollbar" id="main-content"></div>
         </main>
     </div>
@@ -122,7 +123,7 @@
 
     <div id="pin-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md flex items-center justify-center hidden z-50 p-4">
         <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden border border-slate-200 text-center p-6 space-y-4">
-            <div id="pin-icon-box" class="w-14 h-14 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto text-2xl">
+            <div id="pin-icon-box" class="w-14 h-14 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center mx-auto text-2xl">
                 <i class="fa-solid fa-shield-halved"></i>
             </div>
             <div>
@@ -562,7 +563,7 @@
                 const nav = document.getElementById('nav-' + t);
                 nav.className = (t === tab)
                     ? "w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-semibold bg-navy-900 text-white shadow-md transition-all"
-                    : "w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-800 hover:text-white transition-all";
+                    : "w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-semibold text-slate-400 hover:bg-navy-800 hover:text-white transition-all";
             });
             renderActiveWorkspace();
         }
@@ -575,11 +576,11 @@
             const title = document.getElementById('pin-title');
             const desc = document.getElementById('pin-desc');
             if (type === 'brac') {
-                iconBox.className = "w-14 h-14 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto text-2xl";
+                iconBox.className = "w-14 h-14 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center mx-auto text-2xl";
                 title.innerText = "BRAC Internal Restricted Access";
                 desc.innerText = "Enter PIN to unlock internal ToR specifications workspace.";
             } else {
-                iconBox.className = "w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-2xl";
+                iconBox.className = "w-14 h-14 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center mx-auto text-2xl";
                 title.innerText = "Procurement & Payments Security";
                 desc.innerText = "Restricted to Tracy & Procurement. Enter PIN.";
             }
@@ -598,10 +599,10 @@
             const val = document.getElementById('pin-input').value.trim();
             if (targetAuthTarget.type === 'brac' && val === PIN_BRAC) {
                 isBRACAuthenticated = true;
-                document.getElementById('lock-icon-internal').className = "fa-solid fa-lock-open text-emerald-400 text-xs";
+                document.getElementById('lock-icon-internal').className = "fa-solid fa-lock-open text-brand-200 text-xs";
             } else if (targetAuthTarget.type === 'tracy' && val === PIN_TRACY) {
                 isPaymentsAuthenticated = true;
-                document.getElementById('lock-icon-payments').className = "fa-solid fa-lock-open text-emerald-400 text-xs";
+                document.getElementById('lock-icon-payments').className = "fa-solid fa-lock-open text-brand-200 text-xs";
             } else {
                 document.getElementById('pin-error').classList.remove('hidden');
                 return;
@@ -617,8 +618,8 @@
         function lockAllSessions() {
             isBRACAuthenticated = false;
             isPaymentsAuthenticated = false;
-            document.getElementById('lock-icon-internal').className = "fa-solid fa-lock text-amber-400 text-xs";
-            document.getElementById('lock-icon-payments').className = "fa-solid fa-lock text-emerald-400 text-xs";
+            document.getElementById('lock-icon-internal').className = "fa-solid fa-lock text-brand-200 text-xs";
+            document.getElementById('lock-icon-payments').className = "fa-solid fa-lock text-brand-200 text-xs";
             document.getElementById('btn-lock-all').classList.add('hidden');
             switchTab('docs');
             showToast("Locked");
@@ -692,7 +693,7 @@
 
         function docRow(d, isBoma) {
             const i = regFile(d.name, d.type, d.data);
-            const icon = d.isLink ? 'fa-solid fa-link text-blue-500' : (isBoma ? 'fa-solid fa-file-pdf text-rose-500' : 'fa-solid fa-file-contract text-navy-800');
+            const icon = d.isLink ? 'fa-solid fa-link text-navy-800' : (isBoma ? 'fa-solid fa-file-pdf text-brand-500' : 'fa-solid fa-file-contract text-navy-800');
             const sub = isBoma ? `${esc(d.size)} • ${esc(d.uploader)} on ${esc(d.date)}` : `${esc(d.format)} • ${esc(d.size)} • ${esc(d.date)}`;
             return `
                 <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs">
@@ -794,9 +795,9 @@
 
             const htmlPhases = Object.keys(grouped).map(phaseName => `
                 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-6">
-                    <div class="bg-slate-800 text-white px-5 py-3 font-bold text-xs flex justify-between items-center">
-                        <span><i class="fa-solid fa-layer-group text-amber-400 mr-2"></i>${esc(phaseName)}</span>
-                        <span class="text-[10px] bg-slate-700 px-2 py-0.5 rounded text-slate-300">${grouped[phaseName].length} Schedule Items</span>
+                    <div class="bg-navy-800 text-white px-5 py-3 font-bold text-xs flex justify-between items-center">
+                        <span><i class="fa-solid fa-layer-group text-brand-200 mr-2"></i>${esc(phaseName)}</span>
+                        <span class="text-[10px] bg-navy-900 px-2 py-0.5 rounded text-slate-300">${grouped[phaseName].length} Schedule Items</span>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-xs border-collapse min-w-[750px]">
@@ -813,7 +814,7 @@
                             <tbody class="divide-y divide-slate-100">
                                 ${grouped[phaseName].map(i => `
                                     <tr class="hover:bg-slate-50">
-                                        <td class="p-3 pl-5 font-mono font-bold text-blue-600">${esc(i.id)}</td>
+                                        <td class="p-3 pl-5 font-mono font-bold text-navy-800">${esc(i.id)}</td>
                                         <td class="p-3 font-medium text-slate-900">${esc(i.item)}</td>
                                         <td class="p-3">
                                             <select onchange="saveBoq(${i.globalIdx}, 'status', this.value)" class="bg-slate-100 border border-slate-300 rounded-lg px-2 py-1 text-xs font-semibold">
@@ -828,7 +829,7 @@
                                         <td class="p-3"><input type="text" value="${esc(i.comment)}" onchange="saveBoq(${i.globalIdx}, 'comment', this.value)" class="w-full bg-slate-50 border rounded-lg px-2 py-1 text-xs"></td>
                                         <td class="p-3 pr-5">
                                             ${i.attachment
-                                                ? attachButton(i.attachment, i.fileData, `triggerUploadFor('2','${i.id}')`, 'bg-emerald-50 text-emerald-700 border-emerald-200', `clearAttach('2','${i.id}')`)
+                                                ? attachButton(i.attachment, i.fileData, `triggerUploadFor('2','${i.id}')`, 'bg-brand-100 text-brand-600 border-brand-200', `clearAttach('2','${i.id}')`)
                                                 : `<button onclick="triggerUploadFor('2', '${i.id}')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold border flex items-center gap-1"><i class="fa-solid fa-upload text-[10px]"></i><span>Attach</span></button>`}
                                         </td>
                                     </tr>`).join('')}
@@ -848,7 +849,7 @@
         function renderWorkspace3(container) {
             const rows = internalDeliberations.map((item, idx) => `
                 <tr class="hover:bg-slate-50 border-b border-slate-100">
-                    <td class="p-4 pl-5 font-mono font-bold text-amber-600">${esc(item.id)}</td>
+                    <td class="p-4 pl-5 font-mono font-bold text-navy-800">${esc(item.id)}</td>
                     <td class="p-4 font-bold text-slate-900">${esc(item.topic)}</td>
                     <td class="p-4 text-slate-600 text-xs">${esc(item.owner)}</td>
                     <td class="p-4">
@@ -859,7 +860,7 @@
                     <td class="p-4 text-slate-600 text-xs"><input type="text" value="${esc(item.notes)}" onchange="saveInternal(${idx}, 'notes', this.value)" class="w-full bg-slate-50 border rounded-lg p-2 text-xs"></td>
                     <td class="p-4 pr-5">
                         ${item.docLink
-                            ? attachButton(item.docLink, item.fileData, `triggerUploadFor('3','${item.id}')`, 'bg-amber-50 text-amber-800 border-amber-200', `clearAttach('3','${item.id}')`)
+                            ? attachButton(item.docLink, item.fileData, `triggerUploadFor('3','${item.id}')`, 'bg-brand-100 text-brand-600 border-brand-200', `clearAttach('3','${item.id}')`)
                             : `<button onclick="triggerUploadFor('3', '${item.id}')" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold border"><i class="fa-solid fa-upload mr-1"></i> Attach</button>`}
                     </td>
                 </tr>`).join('');
@@ -868,7 +869,7 @@
                 <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm mb-6">
                     <div class="flex items-center space-x-3">
                         <h2 class="text-xl font-bold text-slate-900">3) BRAC Internal Tracker</h2>
-                        <span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded border border-amber-200 uppercase">UNLOCKED</span>
+                        <span class="bg-brand-100 text-brand-600 text-[10px] font-bold px-2 py-0.5 rounded border border-brand-200 uppercase">UNLOCKED</span>
                     </div>
                     <p class="text-xs text-slate-500 mt-0.5">Tracks internal pre-commencement deliberations and spatial specs.</p>
                 </div>
@@ -889,7 +890,7 @@
                     </div>
                     <div class="bg-white rounded-2xl border border-slate-200 p-6 space-y-3 shadow-sm">
                         <div class="flex items-center space-x-2 text-slate-900 font-bold text-xs uppercase tracking-wider border-b pb-3">
-                            <i class="fa-solid fa-truck-ramp-box text-emerald-500"></i>
+                            <i class="fa-solid fa-truck-ramp-box text-brand-500"></i>
                             <span>SECONDARY SERVICE & SUPPORT ZONE</span>
                         </div>
                         <ul class="text-xs text-slate-600 space-y-2 leading-relaxed">
@@ -929,7 +930,7 @@
             const rows = procurementTranches.map((t, idx) => `
                 <tr class="hover:bg-slate-50 border-b border-slate-100">
                     <td class="p-4 pl-5 font-bold text-slate-900">${esc(t.title)}</td>
-                    <td class="p-4 font-mono font-bold text-emerald-600">${esc(t.amount)}</td>
+                    <td class="p-4 font-mono font-bold text-navy-800">${esc(t.amount)}</td>
                     <td class="p-4">
                         <select onchange="saveTranche(${idx}, 'status', this.value)" class="bg-slate-100 border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-semibold">
                             ${['Pending Invoice', 'Scheduled'].map(o => `<option value="${o}" ${t.status === o ? 'selected' : ''}>${o}</option>`).join('')}
@@ -937,8 +938,8 @@
                     </td>
                     <td class="p-4">
                         ${t.doc
-                            ? attachButton(t.doc, t.fileData, `triggerUploadFor('4','${t.id}')`, 'bg-emerald-50 text-emerald-700 border-emerald-200', `clearAttach('4','${t.id}')`)
-                            : `<button onclick="triggerUploadFor('4', '${t.id}')" class="px-3 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-xs font-semibold hover:bg-emerald-100"><i class="fa-solid fa-upload mr-1"></i> Upload File</button>`}
+                            ? attachButton(t.doc, t.fileData, `triggerUploadFor('4','${t.id}')`, 'bg-brand-100 text-brand-600 border-brand-200', `clearAttach('4','${t.id}')`)
+                            : `<button onclick="triggerUploadFor('4', '${t.id}')" class="px-3 py-1.5 bg-brand-100 text-brand-600 border border-brand-200 rounded-lg text-xs font-semibold hover:bg-brand-200"><i class="fa-solid fa-upload mr-1"></i> Upload File</button>`}
                     </td>
                     <td class="p-4 pr-5"><input type="text" placeholder="Enter offset note or comment..." value="${esc(t.comments)}" onchange="saveTranche(${idx}, 'comments', this.value)" class="w-full bg-slate-50 border rounded-lg p-2 text-xs"></td>
                 </tr>`).join('');
@@ -947,12 +948,12 @@
                 <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm mb-6">
                     <div class="flex items-center space-x-3">
                         <h2 class="text-xl font-bold text-slate-900">4) Procurement & Payments</h2>
-                        <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded border border-emerald-200 uppercase">UNLOCKED</span>
+                        <span class="bg-brand-100 text-brand-600 text-[10px] font-bold px-2 py-0.5 rounded border border-brand-200 uppercase">UNLOCKED</span>
                     </div>
                     <p class="text-xs text-slate-500 mt-0.5">Pre-commencement financial tranches and payment ledger.</p>
                 </div>
 
-                <div class="bg-slate-900 text-white rounded-2xl p-6 shadow-md mb-6 space-y-4 border border-slate-800">
+                <div class="bg-navy-950 text-white rounded-2xl p-6 shadow-md mb-6 space-y-4 border border-navy-800">
                     <div class="flex flex-wrap items-center justify-between gap-4">
                         <div>
                             <p class="text-xs text-slate-400 font-medium">Total Settled BoQ Budget Envelope</p>
@@ -960,11 +961,11 @@
                         </div>
                         <div>
                             <p class="text-xs text-slate-400 font-medium">Offset Payments Made To Date</p>
-                            <h3 class="text-2xl font-bold font-mono text-emerald-400">KES 0 <span class="text-xs font-normal text-slate-400">(0% Disbursed)</span></h3>
+                            <h3 class="text-2xl font-bold font-mono text-white">KES 0 <span class="text-xs font-normal text-slate-400">(0% Disbursed)</span></h3>
                         </div>
                         <div>
                             <p class="text-xs text-slate-400 font-medium mb-1">Current Financial Status</p>
-                            <span class="bg-amber-500/20 text-amber-300 border border-amber-500/40 px-3 py-1 rounded-lg font-semibold text-xs">Pre-Commencement Stage</span>
+                            <span class="bg-brand-500/15 text-brand-100 border border-brand-100/20 px-3 py-1 rounded-lg font-semibold text-xs">Pre-Commencement Stage</span>
                         </div>
                     </div>
                     <div class="space-y-1">
@@ -972,7 +973,7 @@
                             <span>Disbursement Progress</span>
                             <span>KES 0 / KES 24,782,414 (0%)</span>
                         </div>
-                        <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden"><div class="bg-emerald-500 h-full w-0"></div></div>
+                        <div class="w-full bg-navy-800 h-2 rounded-full overflow-hidden"><div class="bg-brand-500 h-full w-0"></div></div>
                     </div>
                 </div>
 
