@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BRAC-BOMA Contract Dashboard Tracker</title>
+    <title>BRAC-BOMA Contract Tracker</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        navy: { 800: '#69475A', 900: '#4A3443', 950: '#30252F' },
-                        brand: { 100: '#F6EAF0', 200: '#E8CCD9', 500: '#A94E73', 600: '#873A5D', 700: '#6E304B' },
-                        canvas: '#F4F3F0'
+                        navy: { 800: '#2E5B66', 900: '#1F4450', 950: '#16303A' },
+                        brand: { 100: '#E3F1F2', 200: '#BFDDE0', 500: '#23868F', 600: '#1B6D75', 700: '#15565C' },
+                        canvas: '#F1F5F6'
                     }
                 }
             }
@@ -22,9 +22,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
+        .ov-chip { padding: 4px 10px; border-radius: 9999px; border: 1px solid #cbd5e1; font-size: 11px; font-weight: 600; color: #334155; background: #fff; transition: all .15s; }
+        .ov-chip:hover { background: #F6EAF0; border-color: #A94E73; color: #6E304B; }
+        .ov-chip i { color: #A94E73; margin-right: 4px; font-size: 10px; }
         .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #e9e8e4; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #c8c8c4; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #e3eaec; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #b9c6ca; border-radius: 4px; }
     </style>
 </head>
 <body class="h-full bg-canvas text-slate-800 antialiased flex flex-col">
@@ -40,7 +43,7 @@
                 <img src="data:image/png;base64,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" alt="BRAC" class="block w-16 lg:w-20 h-auto">
             </div>
             <div>
-                <h1 class="font-bold text-sm lg:text-lg leading-tight">BRAC-BOMA CONTRACT DASHBOARD TRACKER</h1>
+                <h1 class="font-bold text-sm lg:text-lg leading-tight">BRAC-BOMA CONTRACT TRACKER</h1>
                 <p class="text-[10px] lg:text-xs text-slate-300">Africa Regional Office Fit-Out (The Atrium, Hurlingham - 7,880 sq ft)</p>
             </div>
         </div>
@@ -51,7 +54,7 @@
             </span>
             <span class="text-[10px] lg:text-xs bg-brand-500/15 text-brand-100 border border-brand-100/20 px-2.5 py-1 rounded-lg font-semibold flex items-center gap-1.5">
                 <i class="fa-solid fa-clock text-xs"></i>
-                Stage: Pre-Commencement Approval (Version 6 Settled)
+                Stage: Works In Progress (Version 6 Settled)
             </span>
             <button id="btn-lock-all" onclick="lockAllSessions()" class="hidden bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold px-3 py-1.5 rounded-xl transition-colors shadow flex items-center space-x-1">
                 <i class="fa-solid fa-lock"></i>
@@ -71,7 +74,7 @@
                 <button onclick="switchTab('overview')" id="nav-overview" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-semibold bg-navy-900 text-white shadow-md transition-all">
                     <div class="flex items-center space-x-3">
                         <i class="fa-solid fa-chart-pie text-brand-500 text-base"></i>
-                        <span class="text-left">Contract Overview (Summary)</span>
+                        <span class="text-left">Dashboard</span>
                     </div>
                 </button>
 
@@ -86,7 +89,7 @@
                 <button onclick="switchTab('contract')" id="nav-contract" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-semibold text-slate-400 hover:bg-navy-800 hover:text-white transition-all">
                     <div class="flex items-center space-x-3">
                         <i class="fa-solid fa-list-check text-brand-500 text-base"></i>
-                        <span class="text-left">2) Contract Tracker (BoQ Phases)</span>
+                        <span class="text-left">2) Contract Tracker</span>
                     </div>
                     <span id="badge-contract" class="bg-navy-800 text-xs px-2 py-0.5 rounded-full font-mono">17</span>
                 </button>
@@ -116,7 +119,7 @@
                 <div class="text-slate-300 text-[11px] leading-relaxed">
                     Total Budget: <strong class="text-white font-mono">KES 24,782,414</strong><br>
                     Disbursed To Date: <strong class="text-slate-300 font-mono">KES 0 (0%)</strong><br>
-                    <span class="text-slate-400">(Incl. 16% VAT KES 3,418,264)</span><br><span class="text-slate-600">Dashboard build D</span>
+                    <span class="text-slate-400">(Incl. 16% VAT KES 3,418,264)</span><br><span class="text-slate-600">Tracker build D</span>
                 </div>
             </div>
         </aside>
@@ -850,34 +853,70 @@
             syncToGoogleSheets(payload);
         }
 
+        function ovGo(id) {
+            const el = document.getElementById(id);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        /* ---------- Dashboard (opening page) ---------- */
+        let ovWeek = null;     // week picked in the timeline (null = current week)
+        let ovPhase = null;    // phase panel that is open
+        let ovStat = null;     // status chip that is open: done | prog | pend | late
+
+        function ovCurrent() {
+            const t = new Date();
+            const todayMs = Date.UTC(t.getFullYear(), t.getMonth(), t.getDate());
+            const raw = Math.floor((todayMs - PROGRAMME_START) / (7 * DAY_MS)) + 1;
+            return { todayMs, raw, cw: Math.min(Math.max(raw, 1), WEEK_COUNT) };
+        }
+        function ovSelectWeek(w) { ovWeek = w; renderActiveWorkspace(); }
+        function ovStatToggle(k) { ovStat = (ovStat === k) ? null : k; renderActiveWorkspace(); }
+        function ovPhaseToggle(i) { ovPhase = (ovPhase === i) ? null : i; renderActiveWorkspace(); }
+        function ovGoto(id) { const el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+        function ovAsk(kind) {
+            if (kind === 'docs') { switchTab('docs'); return; }
+            if (kind === 'tracker') { switchTab('contract'); return; }
+            if (kind === 'week') { ovWeek = null; renderActiveWorkspace(); setTimeout(() => ovGoto('ov-week'), 60); return; }
+            if (kind === 'late') { ovStat = 'late'; renderActiveWorkspace(); setTimeout(() => ovGoto('ov-status'), 60); return; }
+            if (kind === 'phases') { ovGoto('ov-phases'); return; }
+            ovGoto('ov-status');
+        }
+
+        function annexForWeek(w) {
+            let sec = '', secName = '';
+            const out = [];
+            ANNEX_D.forEach(r => {
+                if (r.sec) { sec = r.sec; secName = r.t; return; }
+                if (inWin(r.b, w)) out.push({ ...r, sec, secName });
+            });
+            return out;
+        }
+
         function renderOverview(container) {
-            const t0 = new Date();
-            const todayMs = Date.UTC(t0.getFullYear(), t0.getMonth(), t0.getDate());
-            const rawWeek = Math.floor((todayMs - PROGRAMME_START) / (7 * DAY_MS)) + 1;
-            const cw = Math.min(Math.max(rawWeek, 1), WEEK_COUNT);
+            const { todayMs, raw: rawWeek, cw } = ovCurrent();
+            const sw = ovWeek || cw;
 
             const total = boqPhasesData.length;
             const isDone = i => i.status === 'Completed';
             const isProg = i => !isDone(i) && (i.status === 'Commenced' || i.status === 'Ongoing');
-            const nDone = boqPhasesData.filter(isDone).length;
-            const nProg = boqPhasesData.filter(isProg).length;
-            const nPend = total - nDone - nProg;
-            const pct = total ? Math.round(nDone * 100 / total) : 0;
-            const late = boqPhasesData.filter(i => { const t = targetInfo(i); return t && t.state === 'late'; });
+            const isLate = i => { const t = targetInfo(i); return !!t && t.state === 'late'; };
+            const groups = {
+                done: boqPhasesData.filter(isDone),
+                prog: boqPhasesData.filter(isProg),
+                pend: boqPhasesData.filter(i => !isDone(i) && !isProg(i)),
+                late: boqPhasesData.filter(isLate)
+            };
+            const pct = total ? Math.round(groups.done.length * 100 / total) : 0;
 
             const dA = daysUntil(MILESTONES.first.ms), dB = daysUntil(MILESTONES.final.ms);
-            const dayText = d => d > 0 ? d + ' days to go' : d === 0 ? 'Today' : Math.abs(d) + ' days past';
+            const bigDays = d => Math.abs(d);
+            const dayLbl = (d, name) => (d >= 0 ? 'days to ' : 'days past ') + name;
 
             let weekMain, weekSub;
-            if (rawWeek < 1) { weekMain = 'Not started'; weekSub = 'Programme starts ' + fmtDayWk(PROGRAMME_START); }
-            else if (rawWeek > WEEK_COUNT) { weekMain = 'Window ended'; weekSub = 'Programme ended ' + fmtDayWk(weekStart(WEEK_COUNT) + 6 * DAY_MS); }
-            else if (cw === BREAK_WEEK) { weekMain = 'Christmas break'; weekSub = 'Week 6 (' + weekRange(6) + ') - BOMA closed'; }
+            if (rawWeek < 1) { weekMain = 'Not started'; weekSub = 'starts ' + fmtDayWk(PROGRAMME_START); }
+            else if (rawWeek > WEEK_COUNT) { weekMain = 'Programme ended'; weekSub = ''; }
+            else if (cw === BREAK_WEEK) { weekMain = 'Christmas break'; weekSub = 'BOMA closed'; }
             else { weekMain = 'Week ' + cw + ' of ' + WEEK_COUNT; weekSub = weekRange(cw); }
-
-            const nextW = (cw + 1 === BREAK_WEEK) ? cw + 2 : cw + 1;
-            const inWeek = (i, w) => { const t = BOQ_TARGETS[i.id]; return t && t.w[0] <= w && t.w[1] >= w; };
-            const thisWeek = cw === BREAK_WEEK ? [] : boqPhasesData.filter(i => !isDone(i) && inWeek(i, cw));
-            const nextWeek = boqPhasesData.filter(i => !isDone(i) && BOQ_TARGETS[i.id] && BOQ_TARGETS[i.id].w[0] === nextW);
 
             const pill = {
                 done: 'bg-emerald-100 text-emerald-700 border-emerald-200',
@@ -885,62 +924,159 @@
                 start: 'bg-amber-100 text-amber-700 border-amber-200',
                 plan: 'bg-slate-100 text-slate-500 border-slate-200'
             };
-            const list = (items, empty) => items.length === 0
+            const itemRows = (items, empty) => items.length === 0
                 ? `<p class="text-xs text-slate-400 italic py-2">${esc(empty)}</p>`
                 : items.map(i => {
                     const t = targetInfo(i);
-                    return `<div class="flex items-start justify-between gap-3 py-2 border-b border-slate-100 last:border-0">
-                        <div class="min-w-0">
-                            <p class="text-xs font-semibold text-slate-900 leading-snug"><span class="font-mono text-navy-800 mr-1">${esc(i.id)}</span>${esc(i.item)}</p>
-                            <p class="text-[10px] text-slate-400 mt-0.5">${t ? esc(t.weeks) + ' &bull; due ' + esc(fmtDayWk(t.due)) : ''}</p>
-                        </div>
-                        <span class="shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded border ${t ? pill[t.state] : pill.plan}">${esc(i.status)}</span>
+                    return `<div class="flex items-start justify-between gap-3 py-1.5 border-b border-slate-100 last:border-0">
+                        <p class="text-xs text-slate-800 leading-snug min-w-0"><span class="font-mono font-bold text-navy-800 mr-1">${esc(i.id)}</span>${esc(i.item)}
+                            ${t ? `<span class="block text-[10px] text-slate-400">${esc(t.weeks)} &bull; due ${esc(fmtDayWk(t.due))}</span>` : ''}</p>
+                        <span class="shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded border ${t ? pill[t.state] : pill.plan}">${esc(t && t.state === 'late' ? t.label : i.status)}</span>
                     </div>`;
                 }).join('');
 
-            // phases in chronological order
+            /* ----- hero ----- */
+            const ring = `<div class="relative w-24 h-24 rounded-full shrink-0" style="background:conic-gradient(#5EEAD4 ${pct * 3.6}deg, rgba(255,255,255,.18) 0)">
+                    <div class="absolute inset-2 rounded-full flex flex-col items-center justify-center" style="background:#1F4450">
+                        <span class="text-xl font-bold leading-none">${pct}%</span><span class="text-[9px] text-slate-300 mt-0.5">complete</span>
+                    </div></div>`;
+            const bigStat = (d, name, sub) => `<div class="text-center sm:text-left">
+                    <p class="text-3xl font-bold leading-none">${bigDays(d)}</p>
+                    <p class="text-[11px] text-teal-100 mt-1">${dayLbl(d, name)}</p>
+                    <p class="text-[10px] text-slate-300">${esc(sub)}</p></div>`;
+            const hero = `
+                <div class="rounded-2xl p-5 lg:p-6 text-white shadow-md" style="background:linear-gradient(135deg,#1B3C47 0%,#25606B 100%)">
+                    <div class="flex flex-wrap items-center justify-between gap-6">
+                        <div class="flex-1 min-w-[240px]">
+                            <h2 class="text-2xl font-bold">Dashboard</h2>
+                            <p class="text-xs text-teal-100 mt-1">BRAC Africa Regional Office fit-out by BOMA</p>
+                            <p class="text-[11px] text-slate-300 mt-2">The Atrium, Hurlingham &bull; 7,880 sq ft &bull; Option 04 layout &bull; KES 24,782,414 incl. 16% VAT</p>
+                            <div class="flex flex-wrap gap-2 mt-3 text-[11px] font-semibold">
+                                <span class="px-2.5 py-1 rounded-full bg-white/15 border border-white/20">${esc(weekMain)}${weekSub ? ' &bull; ' + esc(weekSub) : ''}</span>
+                                <span class="px-2.5 py-1 rounded-full bg-white/15 border border-white/20">Works In Progress</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-6 sm:gap-8">
+                            ${ring}
+                            ${bigStat(dA, '14th February', 'first deadline')}
+                            ${bigStat(dB, '26th February', 'final deadline')}
+                        </div>
+                    </div>
+                </div>`;
+
+            /* ----- Kate's guide ----- */
+            const chip = (label, kind) => `<button onclick="ovAsk('${kind}')" class="px-2.5 py-1 rounded-full text-[11px] font-semibold border border-brand-200 text-brand-700 bg-brand-100 hover:bg-brand-200">${label}</button>`;
+            const guide = `
+                <div class="flex flex-wrap items-center gap-x-3 gap-y-2 bg-white border border-slate-200 rounded-2xl px-3 py-2 shadow-sm">
+                    <span class="w-7 h-7 rounded-full bg-brand-600 text-white text-xs font-bold flex items-center justify-center shrink-0">K</span>
+                    <p class="text-xs text-slate-700"><strong>Hi, I'm Kate.</strong> Questions about this contract? What would you like to see?</p>
+                    <div class="flex flex-wrap gap-1.5 sm:ml-auto">
+                        ${chip('How far are we?', 'progress')}${chip('This week', 'week')}${chip("What's overdue?", 'late')}${chip('By phase', 'phases')}${chip('Documents', 'docs')}${chip('Full tracker', 'tracker')}
+                    </div>
+                </div>`;
+
+            /* ----- status chips ----- */
+            const statDefs = [
+                { k: 'done', label: 'Completed', on: 'bg-emerald-600 text-white border-emerald-600', off: 'bg-white text-emerald-700 border-emerald-200 hover:bg-emerald-50' },
+                { k: 'prog', label: 'In progress', on: 'bg-amber-500 text-white border-amber-500', off: 'bg-white text-amber-700 border-amber-200 hover:bg-amber-50' },
+                { k: 'pend', label: 'Not started', on: 'bg-slate-600 text-white border-slate-600', off: 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50' },
+                { k: 'late', label: 'Overdue', on: 'bg-rose-600 text-white border-rose-600', off: groups.late.length ? 'bg-rose-50 text-rose-700 border-rose-300 hover:bg-rose-100' : 'bg-white text-slate-400 border-slate-200' }
+            ];
+            const emptyMsg = { done: 'Nothing completed yet.', prog: 'Nothing in progress yet.', pend: 'Everything has started.', late: 'Nothing is overdue.' };
+            const statHtml = `
+                <div id="ov-status" class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="text-xs font-bold text-slate-700 mr-1">Status of the ${total} BoQ items</span>
+                        ${statDefs.map(d => `<button onclick="ovStatToggle('${d.k}')" class="px-3 py-1.5 rounded-xl border text-xs font-bold ${ovStat === d.k ? d.on : d.off}">${groups[d.k].length} ${d.label}</button>`).join('')}
+                        <span class="text-[10px] text-slate-400 ml-1">${ovStat ? '' : 'Tap a number to see which items'}</span>
+                    </div>
+                    ${ovStat ? `<div class="mt-3 pt-2 border-t border-slate-100">${itemRows(groups[ovStat], emptyMsg[ovStat])}</div>` : ''}
+                </div>`;
+
+            /* ----- timeline + selected week ----- */
+            const strip = Array.from({ length: WEEK_COUNT }, (_, k) => k + 1).map(w => {
+                const isBreak = w === BREAK_WEEK, now = w === cw && rawWeek >= 1 && rawWeek <= WEEK_COUNT, sel = w === sw;
+                const past = weekStart(w) + 6 * DAY_MS < todayMs;
+                const base = isBreak ? 'bg-slate-700 text-white border-slate-700'
+                    : sel ? 'bg-brand-600 text-white border-brand-600'
+                    : past ? 'bg-slate-100 text-slate-400 border-slate-200 hover:bg-slate-200'
+                    : 'bg-white text-slate-700 border-slate-200 hover:bg-brand-100';
+                const mark = w === FIRST_DEADLINE_WEEK ? '<div class="text-[8px] font-bold mt-0.5"><i class="fa-solid fa-calendar-check"></i> 14 Feb</div>'
+                    : w === WEEK_COUNT ? '<div class="text-[8px] font-bold mt-0.5"><i class="fa-solid fa-flag-checkered"></i> 26 Feb</div>'
+                    : now ? '<div class="text-[8px] font-bold mt-0.5">NOW</div>' : '';
+                return `<button onclick="ovSelectWeek(${w})" class="border rounded-lg p-1.5 text-center ${base} ${sel && isBreak ? 'ring-2 ring-brand-500' : ''}">
+                    <div class="text-[10px] font-bold">W${w}</div>
+                    <div class="text-[8px] leading-tight opacity-80">${isBreak ? 'Closed' : esc(weekRange(w))}</div>${mark}</button>`;
+            }).join('');
+
+            let weekBody;
+            if (sw === BREAK_WEEK) {
+                weekBody = '<p class="text-xs text-slate-500 py-2">BOMA is closed for the Christmas break. No site work is scheduled this week.</p>';
+            } else {
+                const rowsW = annexForWeek(sw);
+                const bySec = {};
+                rowsW.forEach(r => { (bySec[r.sec + '|' + r.secName] = bySec[r.sec + '|' + r.secName] || []).push(r); });
+                const works = rowsW.length === 0 ? '<p class="text-xs text-slate-400 italic py-2">No works scheduled.</p>'
+                    : Object.keys(bySec).map(k => `<div class="mb-2"><p class="text-[10px] font-bold uppercase tracking-wider text-brand-600">${esc(k.split('|')[1])}</p>
+                        ${bySec[k].map(r => `<p class="text-xs ${r.m ? 'italic text-slate-500' : 'text-slate-800'} py-0.5">${r.m ? '<i class="fa-solid fa-diamond text-amber-500 text-[8px] mr-1.5"></i>' : '<i class="fa-solid fa-circle text-brand-500 text-[5px] mr-2 align-middle"></i>'}${esc(r.t)}</p>`).join('')}</div>`).join('');
+                const dueItems = boqPhasesData.filter(i => BOQ_TARGETS[i.id] && BOQ_TARGETS[i.id].w[1] === sw);
+                const note = sw === FIRST_DEADLINE_WEEK ? '<p class="text-[11px] font-semibold text-navy-800 mb-2"><i class="fa-solid fa-calendar-check mr-1"></i>First deadline: 14th February (last working day Fri 12 Feb)</p>'
+                    : sw === WEEK_COUNT ? '<p class="text-[11px] font-semibold text-brand-700 mb-2"><i class="fa-solid fa-flag-checkered mr-1"></i>Final deadline: 26th February</p>' : '';
+                weekBody = `${note}<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div><p class="text-xs font-bold text-slate-900 mb-1">Scheduled works</p>${works}</div>
+                        <div><p class="text-xs font-bold text-slate-900 mb-1">BoQ items due by end of this week</p>${itemRows(dueItems, 'No BoQ item is due this week.')}</div>
+                    </div>`;
+            }
+            const weekHtml = `
+                <div id="ov-week" class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="font-bold text-sm text-slate-900">14-week programme</h3>
+                        <span class="text-[10px] text-slate-400">Tap a week to see what is scheduled</span>
+                    </div>
+                    <div class="overflow-x-auto custom-scrollbar pb-1"><div class="min-w-[820px]" style="display:grid;grid-template-columns:repeat(${WEEK_COUNT},minmax(0,1fr));gap:4px">${strip}</div></div>
+                    <div class="mt-4 pt-3 border-t border-slate-100">
+                        <p class="text-sm font-bold text-slate-900 mb-2">Week ${sw}${sw === BREAK_WEEK ? ' (Christmas break)' : ''} <span class="text-xs font-medium text-slate-400">${esc(weekRange(sw))}${sw === cw && rawWeek >= 1 && rawWeek <= WEEK_COUNT ? ' &bull; this week' : ''}</span></p>
+                        ${weekBody}
+                    </div>
+                </div>`;
+
+            /* ----- phases (open to see what is done) ----- */
             const phases = {};
             boqPhasesData.forEach(i => { (phases[i.phase] = phases[i.phase] || []).push(i); });
             const sOf = i => (BOQ_TARGETS[i.id] ? BOQ_TARGETS[i.id].w[0] : 99);
             const eOf = i => (BOQ_TARGETS[i.id] ? BOQ_TARGETS[i.id].w[1] : 99);
             const pKeys = Object.keys(phases);
             const pOrder = pKeys.slice().sort((a, b) => Math.min(...phases[a].map(sOf)) - Math.min(...phases[b].map(sOf)) || pKeys.indexOf(a) - pKeys.indexOf(b));
-            const phaseHtml = pOrder.map(name => {
+            const phaseHtml = pOrder.map((name, idx) => {
                 const its = phases[name];
-                const d = its.filter(isDone).length, p = its.filter(isProg).length;
+                const d = its.filter(isDone), p = its.filter(isProg), left = its.length - d.length - p.length;
                 const mn = Math.min(...its.map(sOf)), mx = Math.max(...its.map(eOf));
                 const span = mn > WEEK_COUNT ? '' : 'W' + mn + '-W' + mx + ' &bull; ' + fmtDay(weekStart(mn)) + ' - ' + fmtDay(weekFriday(mx));
-                return `<div class="py-2.5 border-b border-slate-100 last:border-0">
-                    <div class="flex items-center justify-between gap-3">
-                        <p class="text-xs font-semibold text-slate-900">${esc(name)}</p>
-                        <p class="text-[10px] text-slate-500 shrink-0">${d} of ${its.length} done</p>
-                    </div>
-                    <div class="flex w-full h-1.5 bg-slate-100 rounded-full overflow-hidden mt-1.5">
-                        <div class="bg-emerald-500" style="width:${its.length ? d * 100 / its.length : 0}%"></div>
-                        <div class="bg-amber-400" style="width:${its.length ? p * 100 / its.length : 0}%"></div>
-                    </div>
-                    <p class="text-[10px] text-slate-400 mt-1">${span}</p>
+                const open = ovPhase === idx;
+                const body = (d.length + p.length) === 0
+                    ? '<p class="text-xs text-slate-400 italic py-1.5">Not started yet.</p>'
+                    : d.map(i => `<p class="text-xs text-slate-800 py-1"><i class="fa-solid fa-circle-check text-emerald-500 mr-1.5"></i><span class="font-mono font-bold text-navy-800 mr-1">${esc(i.id)}</span>${esc(i.item)}</p>`).join('') +
+                      p.map(i => `<p class="text-xs text-slate-800 py-1"><i class="fa-solid fa-spinner text-amber-500 mr-1.5"></i><span class="font-mono font-bold text-navy-800 mr-1">${esc(i.id)}</span>${esc(i.item)} <span class="text-[10px] text-amber-600 font-semibold">${esc(i.status)}</span></p>`).join('') +
+                      (left ? `<p class="text-[10px] text-slate-400 mt-1">${left} more not started</p>` : '');
+                return `<div class="border-b border-slate-100 last:border-0" data-phase-acc>
+                    <button onclick="ovPhaseToggle(${idx})" class="w-full text-left py-2.5">
+                        <span class="flex items-center justify-between gap-3">
+                            <span class="text-xs font-semibold text-slate-900">${esc(name)}</span>
+                            <span class="flex items-center gap-2 shrink-0"><span class="text-[10px] text-slate-500">${d.length} of ${its.length} done</span><i class="fa-solid fa-chevron-${open ? 'up' : 'down'} text-[10px] text-slate-400"></i></span>
+                        </span>
+                        <span class="flex w-full h-1.5 bg-slate-100 rounded-full overflow-hidden mt-1.5">
+                            <span class="bg-emerald-500" style="width:${its.length ? d.length * 100 / its.length : 0}%"></span>
+                            <span class="bg-amber-400" style="width:${its.length ? p.length * 100 / its.length : 0}%"></span>
+                        </span>
+                        <span class="block text-[10px] text-slate-400 mt-1">${span}</span>
+                    </button>
+                    ${open ? `<div class="pb-3 pl-1">${body}</div>` : ''}
                 </div>`;
             }).join('');
 
-            // 14-week strip
-            const strip = Array.from({ length: WEEK_COUNT }, (_, k) => k + 1).map(w => {
-                const isBreak = w === BREAK_WEEK, cur = w === cw && rawWeek >= 1 && rawWeek <= WEEK_COUNT;
-                const past = weekStart(w) + 6 * DAY_MS < todayMs;
-                const cls = isBreak ? 'bg-slate-800 text-white border-slate-800'
-                    : cur ? 'bg-brand-100 text-brand-700 border-brand-500 ring-2 ring-brand-500'
-                    : past ? 'bg-slate-100 text-slate-400 border-slate-200'
-                    : 'bg-white text-slate-700 border-slate-200';
-                const mark = w === FIRST_DEADLINE_WEEK ? '<div class="text-[8px] font-bold text-navy-800 mt-0.5"><i class="fa-solid fa-calendar-check"></i> 14 Feb</div>'
-                    : w === WEEK_COUNT ? '<div class="text-[8px] font-bold text-brand-600 mt-0.5"><i class="fa-solid fa-flag-checkered"></i> 26 Feb</div>' : '';
-                return `<div class="border rounded-lg p-1.5 text-center ${cls}">
-                    <div class="text-[10px] font-bold">${isBreak ? 'W6' : 'W' + w}</div>
-                    <div class="text-[8px] leading-tight opacity-80">${isBreak ? 'Closed' : esc(weekRange(w))}</div>${mark}</div>`;
-            }).join('');
-
-            // latest documents (public tab 1 only)
+            /* ----- latest documents ----- */
             const allDocs = docsBOMA.map(d => ({ ...d, src: 'BOMA approval' })).concat(docsBRAC.map(d => ({ ...d, src: 'BRAC directive' })))
-                .sort((a, b) => String(b.date).localeCompare(String(a.date))).slice(0, 6);
+                .sort((a, b) => String(b.date).localeCompare(String(a.date))).slice(0, 4);
             const docsHtml = allDocs.length === 0
                 ? '<p class="text-xs text-slate-400 italic py-2">No documents uploaded yet.</p>'
                 : allDocs.map(d => {
@@ -950,91 +1086,33 @@
                         <span class="text-[10px] text-slate-400 shrink-0">${esc(d.src)} &bull; ${esc(d.date)}</span></button>`;
                 }).join('');
 
-            const fact = (label, val) => `<div><p class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">${label}</p><p class="text-xs font-semibold text-slate-900 mt-0.5">${val}</p></div>`;
-
             container.innerHTML = `
-                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                    <h2 class="text-xl font-bold text-slate-900">Contract Overview</h2>
-                    <p class="text-xs text-slate-500 mt-0.5">BRAC Africa Regional Office fit-out by BOMA. Live summary of progress, deadlines and documents, shared with everyone who has this link.</p>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4 pt-4 border-t border-slate-100">
-                        ${fact('Site', 'The Atrium, Hurlingham')}
-                        ${fact('Floor area', '7,880 sq ft')}
-                        ${fact('Layout', 'Option 04 (Version 6 settled)')}
-                        ${fact('Stage', 'Pre-Commencement Approval')}
-                        ${fact('Contract budget', 'KES 24,782,414 <span class="font-normal text-slate-400">(incl. 16% VAT)</span>')}
-                        ${fact('Programme', '14 weeks, from ' + esc(fmtDayWk(PROGRAMME_START)))}
-                        ${fact('Christmas break', '28 Dec - 3 Jan (BOMA closed)')}
-                        ${fact('BoQ items', total + ' across ' + pKeys.length + ' phases')}
-                    </div>
-                </div>
-
-                ${late.length ? `<div class="bg-rose-50 border border-rose-200 text-rose-700 rounded-2xl p-4 text-xs font-semibold"><i class="fa-solid fa-triangle-exclamation mr-1"></i> ${late.length} item${late.length > 1 ? 's are' : ' is'} past the planned date and not completed: ${late.map(i => esc(i.id)).join(', ')}</div>` : ''}
-
-                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-                    <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
-                        <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Overall progress</p>
-                        <p class="text-2xl font-bold text-slate-900 mt-1">${pct}%</p>
-                        <div class="flex w-full h-2 bg-slate-100 rounded-full overflow-hidden mt-2">
-                            <div class="bg-emerald-500" style="width:${total ? nDone * 100 / total : 0}%"></div>
-                            <div class="bg-amber-400" style="width:${total ? nProg * 100 / total : 0}%"></div>
-                        </div>
-                        <p class="text-[11px] text-slate-500 mt-2"><span class="font-semibold text-emerald-600">${nDone} done</span> &bull; <span class="font-semibold text-amber-600">${nProg} in progress</span> &bull; ${nPend} not started</p>
-                    </div>
-                    <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
-                        <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Programme week</p>
-                        <p class="text-lg font-bold text-slate-900 mt-1">${esc(weekMain)}</p>
-                        <p class="text-xs text-slate-500">${esc(weekSub)}</p>
-                    </div>
-                    <div class="bg-white rounded-2xl border border-slate-300 p-4 shadow-sm">
-                        <p class="text-[10px] font-bold uppercase tracking-wider text-navy-800"><i class="fa-solid fa-calendar-check mr-1"></i>First deadline</p>
-                        <p class="text-lg font-bold text-slate-900 mt-1">14th February</p>
-                        <p class="text-xs text-slate-500">${dayText(dA)} &bull; last working day ${esc(fmtDayWk(MILESTONES.first.ms))}</p>
-                    </div>
-                    <div class="bg-white rounded-2xl border border-brand-200 p-4 shadow-sm">
-                        <p class="text-[10px] font-bold uppercase tracking-wider text-brand-600"><i class="fa-solid fa-flag-checkered mr-1"></i>Final deadline</p>
-                        <p class="text-lg font-bold text-slate-900 mt-1">26th February</p>
-                        <p class="text-xs text-slate-500">${dayText(dB)} &bull; BOMA's latest return date</p>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-                    <h3 class="font-bold text-sm text-slate-900 mb-3">14-week timeline</h3>
-                    <div class="overflow-x-auto custom-scrollbar"><div class="min-w-[820px]" style="display:grid;grid-template-columns:repeat(${WEEK_COUNT},minmax(0,1fr));gap:4px">${strip}</div></div>
-                </div>
-
+                ${guide}
+                ${hero}
+                ${statHtml}
+                ${weekHtml}
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-                        <h3 class="font-bold text-sm text-slate-900">To be done this week</h3>
-                        <p class="text-[11px] text-slate-400 mb-2">${cw === BREAK_WEEK ? 'BOMA is closed this week' : esc(weekMain) + ' (' + esc(weekRange(cw)) + ')'}</p>
-                        ${list(thisWeek, cw === BREAK_WEEK ? 'No site work during the Christmas break.' : 'Nothing open for this week.')}
-                    </div>
-                    <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-                        <h3 class="font-bold text-sm text-slate-900">Starting next</h3>
-                        <p class="text-[11px] text-slate-400 mb-2">${nextW <= WEEK_COUNT ? 'Week ' + nextW + ' (' + esc(weekRange(nextW)) + ')' : 'End of programme'}</p>
-                        ${list(nextWeek, 'Nothing new starts next week.')}
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-                        <h3 class="font-bold text-sm text-slate-900 mb-1">Progress by phase</h3>
-                        <p class="text-[11px] text-slate-400 mb-1">In the order the work starts</p>
+                    <div id="ov-phases" class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+                        <h3 class="font-bold text-sm text-slate-900">Progress by phase</h3>
+                        <p class="text-[11px] text-slate-400 mb-1">In the order the work starts. Tap a phase to see what is done.</p>
                         ${phaseHtml}
                     </div>
-                    <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-                        <div class="flex items-center justify-between mb-1">
+                    <div id="ov-docs" class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+                        <div class="flex items-center justify-between">
                             <h3 class="font-bold text-sm text-slate-900">Latest documents</h3>
                             <button onclick="switchTab('docs')" class="text-[11px] font-semibold text-brand-600 hover:underline">All documents</button>
                         </div>
                         <p class="text-[11px] text-slate-400 mb-1">${docsBOMA.length} BOMA approvals &bull; ${docsBRAC.length} BRAC directives and links</p>
                         ${docsHtml}
-                        <div class="flex flex-wrap gap-2 mt-4">
-                            <button onclick="switchTab('contract')" class="px-3 py-2 bg-navy-900 text-white text-xs font-semibold rounded-xl shadow"><i class="fa-solid fa-list-check mr-1"></i> Open Contract Tracker</button>
-                            <button onclick="switchTab('docs')" class="px-3 py-2 border border-slate-300 text-slate-700 text-xs font-semibold rounded-xl hover:bg-slate-50"><i class="fa-solid fa-folder-open mr-1"></i> Documentation</button>
-                        </div>
+                        <button onclick="switchTab('contract')" class="mt-4 px-3 py-2 bg-navy-900 text-white text-xs font-semibold rounded-xl shadow"><i class="fa-solid fa-list-check mr-1"></i> Open the full Contract Tracker</button>
                     </div>
                 </div>`;
         }
+
+        // an open phase folds away as soon as the reader clicks anywhere else
+        document.getElementById('main-content').addEventListener('click', function (e) {
+            if (activeTab === 'overview' && ovPhase !== null && !e.target.closest('[data-phase-acc]')) { ovPhase = null; renderActiveWorkspace(); }
+        });
 
         function renderWorkspace1(container) {
             const htmlBoma = docsBOMA.length === 0
@@ -1082,12 +1160,12 @@
 
             const head = weeks.map(w => {
                 if (w === BREAK_WEEK) return `<th class="bg-slate-800 text-white p-1 w-9 text-[9px] font-bold align-bottom">W${w}</th>`;
-                const isV = w === FIRST_DEADLINE_WEEK, isF = w === WEEK_COUNT;
-                return `<th class="p-1 w-14 text-center align-bottom border-l border-slate-200 ${isV ? 'bg-slate-100 border-r-2 border-r-slate-700' : ''} ${isF ? 'bg-brand-100' : ''}">
+                const isA = w === FIRST_DEADLINE_WEEK, isF = w === WEEK_COUNT;
+                return `<th class="p-1 w-12 text-center align-bottom border-l border-slate-200 ${isA ? 'bg-slate-100 border-r-2 border-r-slate-700' : ''} ${isF ? 'bg-brand-100' : ''}">
                     <div class="text-[9px] font-bold text-slate-700">W${w}</div>
                     <div class="text-[8px] font-medium text-slate-400 leading-tight">${esc(weekRange(w))}</div>
-                    ${isV ? '<div class="text-[8px] font-bold text-slate-700 mt-0.5"><i class="fa-solid fa-calendar-check"></i> 14 Feb</div>' : ''}
-                    ${isF ? '<div class="text-[8px] font-bold text-brand-600 mt-0.5"><i class="fa-solid fa-flag-checkered"></i> 26 Feb</div>' : ''}
+                    ${isA ? '<div class="text-[8px] font-bold text-slate-700 mt-0.5"><i class="fa-solid fa-calendar-check"></i> 14 Feb</div>' : ''}
+                    ${isF ? '<div class="text-[8px] font-bold text-brand-700 mt-0.5"><i class="fa-solid fa-flag-checkered"></i> 26 Feb</div>' : ''}
                 </th>`;
             }).join('');
 
@@ -1100,12 +1178,9 @@
                     }
                     const vline = w === FIRST_DEADLINE_WEEK ? 'border-r-2 border-r-slate-700' : '';
                     if (r.sec) return `<td class="bg-slate-100 border-l border-slate-200 ${vline}"></td>`;
-                    const b = inWin(r.b, w), v = inWin(r.v, w), c = inWin(r.c, w);
+                    const on = inWin(r.b, w);
                     return `<td class="p-0 border-l border-slate-100 ${vline} ${w === FIRST_DEADLINE_WEEK ? 'bg-slate-100/60' : ''}">
-                        <div class="flex flex-col gap-px px-0.5 py-1 h-7 justify-center">
-                            <div class="h-1.5 rounded-sm ${b ? 'bg-slate-400' : ''}"></div>
-                            <div class="h-2.5 rounded-sm ${v ? (r.m ? 'bg-amber-500' : 'bg-brand-500') : (c ? 'bg-brand-200 border border-dashed border-brand-500' : '')}"></div>
-                        </div>
+                        <div class="px-0.5 py-1.5 h-6 flex items-center"><div class="w-full h-2.5 rounded-sm ${on ? (r.m ? 'bg-amber-500' : 'bg-brand-500') : ''}"></div></div>
                     </td>`;
                 }).join('');
                 if (r.sec) {
@@ -1118,7 +1193,7 @@
 
             return `
                 <div class="overflow-x-auto custom-scrollbar">
-                    <table class="text-left border-collapse w-full min-w-[1080px]">
+                    <table class="text-left border-collapse w-full min-w-[960px]">
                         <thead><tr class="border-b-2 border-slate-300 bg-white">
                             <th class="pl-3 w-12 text-[9px] uppercase text-slate-400 align-bottom">Ref</th>
                             <th class="text-[9px] uppercase text-slate-400 align-bottom pb-1">Annex D task</th>${head}
@@ -1224,50 +1299,24 @@
 
             container.innerHTML = `
                 <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm mb-6">
-                    <h2 class="text-xl font-bold text-slate-900">2) Contract Tracker (Phased BoQ Works)</h2>
-                    <p class="text-xs text-slate-500 mt-0.5">Phased execution tracking across all 6 Phases (${boqPhasesData.length} BoQ items) against BOMA's 14-week Annex D programme, with two BRAC deadlines.</p>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <div class="bg-white rounded-2xl border border-slate-300 p-4 shadow-sm">
-                        <p class="text-[10px] font-bold uppercase tracking-wider text-navy-800"><i class="fa-solid fa-calendar-check mr-1"></i>First deadline - 14th February</p>
-                        <p class="text-lg font-bold text-slate-900 mt-1">${esc(fmtDayWk(MILESTONES.first.ms))}</p>
-                        <p class="text-xs text-slate-500">${dayText(dV)} &bull; end of Week ${FIRST_DEADLINE_WEEK} (14th Feb is a Sunday, so this is the last working day)</p>
-                        <p class="text-[11px] text-slate-600 mt-2">Practical completion: works, testing, commissioning and snagging done; office ready to occupy.</p>
-                    </div>
-                    <div class="bg-white rounded-2xl border border-brand-200 p-4 shadow-sm">
-                        <p class="text-[10px] font-bold uppercase tracking-wider text-brand-600"><i class="fa-solid fa-flag-checkered mr-1"></i>Final deadline - end of February</p>
-                        <p class="text-lg font-bold text-slate-900 mt-1">${esc(fmtDayWk(MILESTONES.final.ms))}</p>
-                        <p class="text-xs text-slate-500">${dayText(dF)} &bull; end of Week ${WEEK_COUNT}, BOMA's latest return date</p>
-                        <p class="text-[11px] text-slate-600 mt-2">Contingency window: residual snags, handover pack, as-builts and final milestone payment.</p>
-                    </div>
-                    <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
-                        <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500"><i class="fa-solid fa-gauge-high mr-1"></i>Programme health</p>
-                        <p class="text-lg font-bold text-slate-900 mt-1">${workWeeksV} working weeks to 14th February</p>
-                        <p class="text-xs text-slate-500">BOMA's original plan uses ${workWeeksBoma} (W6 is closed) &bull; plan below compresses it by 2 weeks</p>
-                        <p class="text-[11px] mt-2"><span class="font-semibold text-rose-600">${stats.late} overdue</span> &bull; <span class="font-semibold text-amber-600">${stats.start} due to start</span> &bull; <span class="font-semibold text-emerald-600">${stats.done} done</span></p>
+                    <h2 class="text-xl font-bold text-slate-900">2) Contract Tracker</h2>
+                    <p class="text-xs text-slate-500 mt-0.5">Phased execution tracking against BOMA's 14-week programme. Each item's target shows when it should be finished.</p>
+                    <div class="flex flex-wrap gap-2 mt-3 text-[11px] font-semibold">
+                        <span class="px-2.5 py-1 rounded-full bg-slate-100 text-navy-800 border border-slate-200"><i class="fa-solid fa-calendar-check mr-1"></i>14th February &bull; ${dayText(dV)}</span>
+                        <span class="px-2.5 py-1 rounded-full bg-brand-100 text-brand-700 border border-brand-200"><i class="fa-solid fa-flag-checkered mr-1"></i>26th February &bull; ${dayText(dF)}</span>
+                        <span class="px-2.5 py-1 rounded-full border ${stats.late ? 'bg-rose-100 text-rose-700 border-rose-200' : 'bg-slate-100 text-slate-500 border-slate-200'}">${stats.late} overdue</span>
                     </div>
                 </div>
 
                 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-6">
                     <div class="px-5 py-3 border-b bg-slate-50 flex flex-wrap items-center justify-between gap-2">
-                        <h3 class="font-bold text-slate-900 text-xs">Annex D programme - BOMA original vs. plan to finish by 14th February</h3>
+                        <h3 class="font-bold text-slate-900 text-xs">BOMA programme - 14 weeks</h3>
                         <div class="flex flex-wrap items-center gap-3 text-[10px] text-slate-600">
-                            <span class="flex items-center gap-1"><span class="inline-block w-4 h-1.5 rounded-sm bg-slate-400"></span>BOMA original</span>
-                            <span class="flex items-center gap-1"><span class="inline-block w-4 h-2.5 rounded-sm bg-brand-500"></span>Plan for 14th Feb</span>
+                            <span class="flex items-center gap-1"><span class="inline-block w-4 h-2.5 rounded-sm bg-brand-500"></span>Scheduled work</span>
                             <span class="flex items-center gap-1"><span class="inline-block w-4 h-2.5 rounded-sm bg-amber-500"></span>Inspection / payment</span>
-                            <span class="flex items-center gap-1"><span class="inline-block w-4 h-2.5 rounded-sm bg-brand-200 border border-dashed border-brand-500"></span>Contingency</span>
                         </div>
                     </div>
                     ${buildGantt()}
-                    <div class="px-5 py-3 border-t bg-slate-50 text-[11px] text-slate-600 leading-relaxed">
-                        <strong class="text-slate-800">To finish by 14th February, BOMA must agree to:</strong>
-                        run second fix, cabinets and ceilings in parallel straight after the break (W7-W9);
-                        start HVAC and server room a week earlier (W8-W9);
-                        overlap glass, doors and fittings (W9-W10);
-                        and finish testing, snagging and rectification inside W11-W12, leaving W13-W14 only as contingency.
-                        The grey bars are read from the printed Annex D, so check them against BOMA's original.
-                    </div>
                 </div>
 
                 <div>${htmlPhases}</div>`;
