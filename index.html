@@ -68,7 +68,14 @@
                     <button onclick="toggleMobileSidebar()" class="lg:hidden text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
                 </div>
 
-                <button onclick="switchTab('docs')" id="nav-docs" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-semibold bg-navy-900 text-white shadow-md transition-all">
+                <button onclick="switchTab('overview')" id="nav-overview" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-semibold bg-navy-900 text-white shadow-md transition-all">
+                    <div class="flex items-center space-x-3">
+                        <i class="fa-solid fa-chart-pie text-brand-500 text-base"></i>
+                        <span class="text-left">Contract Overview (Summary)</span>
+                    </div>
+                </button>
+
+                <button onclick="switchTab('docs')" id="nav-docs" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-semibold text-slate-400 hover:bg-navy-800 hover:text-white transition-all">
                     <div class="flex items-center space-x-3">
                         <i class="fa-solid fa-folder-open text-brand-500 text-base"></i>
                         <span class="text-left">1) BOMA-BRAC Documentation Approvals</span>
@@ -81,7 +88,7 @@
                         <i class="fa-solid fa-list-check text-brand-500 text-base"></i>
                         <span class="text-left">2) Contract Tracker (BoQ Phases)</span>
                     </div>
-                    <span class="bg-navy-800 text-xs px-2 py-0.5 rounded-full font-mono">18</span>
+                    <span id="badge-contract" class="bg-navy-800 text-xs px-2 py-0.5 rounded-full font-mono">17</span>
                 </button>
 
                 <button onclick="switchTab('internal')" id="nav-internal" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-semibold text-slate-400 hover:bg-navy-800 hover:text-white transition-all">
@@ -202,7 +209,7 @@
         const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
         const POLL_MS = 10000;
 
-        let activeTab = 'docs';
+        let activeTab = 'overview';
         let isBRACAuthenticated = false;
         let isPaymentsAuthenticated = false;
         let targetAuthTarget = null;
@@ -655,7 +662,7 @@
 
         function executeTabSwitch(tab) {
             activeTab = tab;
-            ['docs', 'contract', 'internal', 'payments'].forEach(t => {
+            ['overview', 'docs', 'contract', 'internal', 'payments'].forEach(t => {
                 const nav = document.getElementById('nav-' + t);
                 nav.className = (t === tab)
                     ? "w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-semibold bg-navy-900 text-white shadow-md transition-all"
@@ -717,7 +724,7 @@
             document.getElementById('lock-icon-internal').className = "fa-solid fa-lock text-brand-200 text-xs";
             document.getElementById('lock-icon-payments').className = "fa-solid fa-lock text-brand-200 text-xs";
             document.getElementById('btn-lock-all').classList.add('hidden');
-            switchTab('docs');
+            switchTab('overview');
             showToast("Locked");
         }
 
@@ -780,7 +787,8 @@
             fileRegistry = [];
             const container = document.getElementById('main-content');
             const scroll = container.scrollTop;
-            if (activeTab === 'docs') renderWorkspace1(container);
+            if (activeTab === 'overview') renderOverview(container);
+            else if (activeTab === 'docs') renderWorkspace1(container);
             else if (activeTab === 'contract') renderWorkspace2(container);
             else if (activeTab === 'internal') renderWorkspace3(container);
             else if (activeTab === 'payments') renderWorkspace4(container);
@@ -840,6 +848,192 @@
             }
             renderActiveWorkspace();
             syncToGoogleSheets(payload);
+        }
+
+        function renderOverview(container) {
+            const t0 = new Date();
+            const todayMs = Date.UTC(t0.getFullYear(), t0.getMonth(), t0.getDate());
+            const rawWeek = Math.floor((todayMs - PROGRAMME_START) / (7 * DAY_MS)) + 1;
+            const cw = Math.min(Math.max(rawWeek, 1), WEEK_COUNT);
+
+            const total = boqPhasesData.length;
+            const isDone = i => i.status === 'Completed';
+            const isProg = i => !isDone(i) && (i.status === 'Commenced' || i.status === 'Ongoing');
+            const nDone = boqPhasesData.filter(isDone).length;
+            const nProg = boqPhasesData.filter(isProg).length;
+            const nPend = total - nDone - nProg;
+            const pct = total ? Math.round(nDone * 100 / total) : 0;
+            const late = boqPhasesData.filter(i => { const t = targetInfo(i); return t && t.state === 'late'; });
+
+            const dA = daysUntil(MILESTONES.first.ms), dB = daysUntil(MILESTONES.final.ms);
+            const dayText = d => d > 0 ? d + ' days to go' : d === 0 ? 'Today' : Math.abs(d) + ' days past';
+
+            let weekMain, weekSub;
+            if (rawWeek < 1) { weekMain = 'Not started'; weekSub = 'Programme starts ' + fmtDayWk(PROGRAMME_START); }
+            else if (rawWeek > WEEK_COUNT) { weekMain = 'Window ended'; weekSub = 'Programme ended ' + fmtDayWk(weekStart(WEEK_COUNT) + 6 * DAY_MS); }
+            else if (cw === BREAK_WEEK) { weekMain = 'Christmas break'; weekSub = 'Week 6 (' + weekRange(6) + ') - BOMA closed'; }
+            else { weekMain = 'Week ' + cw + ' of ' + WEEK_COUNT; weekSub = weekRange(cw); }
+
+            const nextW = (cw + 1 === BREAK_WEEK) ? cw + 2 : cw + 1;
+            const inWeek = (i, w) => { const t = BOQ_TARGETS[i.id]; return t && t.w[0] <= w && t.w[1] >= w; };
+            const thisWeek = cw === BREAK_WEEK ? [] : boqPhasesData.filter(i => !isDone(i) && inWeek(i, cw));
+            const nextWeek = boqPhasesData.filter(i => !isDone(i) && BOQ_TARGETS[i.id] && BOQ_TARGETS[i.id].w[0] === nextW);
+
+            const pill = {
+                done: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+                late: 'bg-rose-100 text-rose-700 border-rose-200',
+                start: 'bg-amber-100 text-amber-700 border-amber-200',
+                plan: 'bg-slate-100 text-slate-500 border-slate-200'
+            };
+            const list = (items, empty) => items.length === 0
+                ? `<p class="text-xs text-slate-400 italic py-2">${esc(empty)}</p>`
+                : items.map(i => {
+                    const t = targetInfo(i);
+                    return `<div class="flex items-start justify-between gap-3 py-2 border-b border-slate-100 last:border-0">
+                        <div class="min-w-0">
+                            <p class="text-xs font-semibold text-slate-900 leading-snug"><span class="font-mono text-navy-800 mr-1">${esc(i.id)}</span>${esc(i.item)}</p>
+                            <p class="text-[10px] text-slate-400 mt-0.5">${t ? esc(t.weeks) + ' &bull; due ' + esc(fmtDayWk(t.due)) : ''}</p>
+                        </div>
+                        <span class="shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded border ${t ? pill[t.state] : pill.plan}">${esc(i.status)}</span>
+                    </div>`;
+                }).join('');
+
+            // phases in chronological order
+            const phases = {};
+            boqPhasesData.forEach(i => { (phases[i.phase] = phases[i.phase] || []).push(i); });
+            const sOf = i => (BOQ_TARGETS[i.id] ? BOQ_TARGETS[i.id].w[0] : 99);
+            const eOf = i => (BOQ_TARGETS[i.id] ? BOQ_TARGETS[i.id].w[1] : 99);
+            const pKeys = Object.keys(phases);
+            const pOrder = pKeys.slice().sort((a, b) => Math.min(...phases[a].map(sOf)) - Math.min(...phases[b].map(sOf)) || pKeys.indexOf(a) - pKeys.indexOf(b));
+            const phaseHtml = pOrder.map(name => {
+                const its = phases[name];
+                const d = its.filter(isDone).length, p = its.filter(isProg).length;
+                const mn = Math.min(...its.map(sOf)), mx = Math.max(...its.map(eOf));
+                const span = mn > WEEK_COUNT ? '' : 'W' + mn + '-W' + mx + ' &bull; ' + fmtDay(weekStart(mn)) + ' - ' + fmtDay(weekFriday(mx));
+                return `<div class="py-2.5 border-b border-slate-100 last:border-0">
+                    <div class="flex items-center justify-between gap-3">
+                        <p class="text-xs font-semibold text-slate-900">${esc(name)}</p>
+                        <p class="text-[10px] text-slate-500 shrink-0">${d} of ${its.length} done</p>
+                    </div>
+                    <div class="flex w-full h-1.5 bg-slate-100 rounded-full overflow-hidden mt-1.5">
+                        <div class="bg-emerald-500" style="width:${its.length ? d * 100 / its.length : 0}%"></div>
+                        <div class="bg-amber-400" style="width:${its.length ? p * 100 / its.length : 0}%"></div>
+                    </div>
+                    <p class="text-[10px] text-slate-400 mt-1">${span}</p>
+                </div>`;
+            }).join('');
+
+            // 14-week strip
+            const strip = Array.from({ length: WEEK_COUNT }, (_, k) => k + 1).map(w => {
+                const isBreak = w === BREAK_WEEK, cur = w === cw && rawWeek >= 1 && rawWeek <= WEEK_COUNT;
+                const past = weekStart(w) + 6 * DAY_MS < todayMs;
+                const cls = isBreak ? 'bg-slate-800 text-white border-slate-800'
+                    : cur ? 'bg-brand-100 text-brand-700 border-brand-500 ring-2 ring-brand-500'
+                    : past ? 'bg-slate-100 text-slate-400 border-slate-200'
+                    : 'bg-white text-slate-700 border-slate-200';
+                const mark = w === FIRST_DEADLINE_WEEK ? '<div class="text-[8px] font-bold text-navy-800 mt-0.5"><i class="fa-solid fa-calendar-check"></i> 14 Feb</div>'
+                    : w === WEEK_COUNT ? '<div class="text-[8px] font-bold text-brand-600 mt-0.5"><i class="fa-solid fa-flag-checkered"></i> 26 Feb</div>' : '';
+                return `<div class="border rounded-lg p-1.5 text-center ${cls}">
+                    <div class="text-[10px] font-bold">${isBreak ? 'W6' : 'W' + w}</div>
+                    <div class="text-[8px] leading-tight opacity-80">${isBreak ? 'Closed' : esc(weekRange(w))}</div>${mark}</div>`;
+            }).join('');
+
+            // latest documents (public tab 1 only)
+            const allDocs = docsBOMA.map(d => ({ ...d, src: 'BOMA approval' })).concat(docsBRAC.map(d => ({ ...d, src: 'BRAC directive' })))
+                .sort((a, b) => String(b.date).localeCompare(String(a.date))).slice(0, 6);
+            const docsHtml = allDocs.length === 0
+                ? '<p class="text-xs text-slate-400 italic py-2">No documents uploaded yet.</p>'
+                : allDocs.map(d => {
+                    const k = regFile(d.name, d.type, d.data);
+                    return `<button onclick="openRef(${k})" class="w-full text-left flex items-center justify-between gap-3 py-2 border-b border-slate-100 last:border-0 hover:bg-slate-50">
+                        <span class="flex items-center gap-2 min-w-0"><i class="${d.isLink ? 'fa-solid fa-link' : 'fa-solid fa-file'} text-navy-800 text-xs"></i><span class="text-xs font-semibold text-slate-900 truncate">${esc(d.name)}</span></span>
+                        <span class="text-[10px] text-slate-400 shrink-0">${esc(d.src)} &bull; ${esc(d.date)}</span></button>`;
+                }).join('');
+
+            const fact = (label, val) => `<div><p class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">${label}</p><p class="text-xs font-semibold text-slate-900 mt-0.5">${val}</p></div>`;
+
+            container.innerHTML = `
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <h2 class="text-xl font-bold text-slate-900">Contract Overview</h2>
+                    <p class="text-xs text-slate-500 mt-0.5">BRAC Africa Regional Office fit-out by BOMA. Live summary of progress, deadlines and documents, shared with everyone who has this link.</p>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4 pt-4 border-t border-slate-100">
+                        ${fact('Site', 'The Atrium, Hurlingham')}
+                        ${fact('Floor area', '7,880 sq ft')}
+                        ${fact('Layout', 'Option 04 (Version 6 settled)')}
+                        ${fact('Stage', 'Pre-Commencement Approval')}
+                        ${fact('Contract budget', 'KES 24,782,414 <span class="font-normal text-slate-400">(incl. 16% VAT)</span>')}
+                        ${fact('Programme', '14 weeks, from ' + esc(fmtDayWk(PROGRAMME_START)))}
+                        ${fact('Christmas break', '28 Dec - 3 Jan (BOMA closed)')}
+                        ${fact('BoQ items', total + ' across ' + pKeys.length + ' phases')}
+                    </div>
+                </div>
+
+                ${late.length ? `<div class="bg-rose-50 border border-rose-200 text-rose-700 rounded-2xl p-4 text-xs font-semibold"><i class="fa-solid fa-triangle-exclamation mr-1"></i> ${late.length} item${late.length > 1 ? 's are' : ' is'} past the planned date and not completed: ${late.map(i => esc(i.id)).join(', ')}</div>` : ''}
+
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+                    <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+                        <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Overall progress</p>
+                        <p class="text-2xl font-bold text-slate-900 mt-1">${pct}%</p>
+                        <div class="flex w-full h-2 bg-slate-100 rounded-full overflow-hidden mt-2">
+                            <div class="bg-emerald-500" style="width:${total ? nDone * 100 / total : 0}%"></div>
+                            <div class="bg-amber-400" style="width:${total ? nProg * 100 / total : 0}%"></div>
+                        </div>
+                        <p class="text-[11px] text-slate-500 mt-2"><span class="font-semibold text-emerald-600">${nDone} done</span> &bull; <span class="font-semibold text-amber-600">${nProg} in progress</span> &bull; ${nPend} not started</p>
+                    </div>
+                    <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+                        <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Programme week</p>
+                        <p class="text-lg font-bold text-slate-900 mt-1">${esc(weekMain)}</p>
+                        <p class="text-xs text-slate-500">${esc(weekSub)}</p>
+                    </div>
+                    <div class="bg-white rounded-2xl border border-slate-300 p-4 shadow-sm">
+                        <p class="text-[10px] font-bold uppercase tracking-wider text-navy-800"><i class="fa-solid fa-calendar-check mr-1"></i>First deadline</p>
+                        <p class="text-lg font-bold text-slate-900 mt-1">14th February</p>
+                        <p class="text-xs text-slate-500">${dayText(dA)} &bull; last working day ${esc(fmtDayWk(MILESTONES.first.ms))}</p>
+                    </div>
+                    <div class="bg-white rounded-2xl border border-brand-200 p-4 shadow-sm">
+                        <p class="text-[10px] font-bold uppercase tracking-wider text-brand-600"><i class="fa-solid fa-flag-checkered mr-1"></i>Final deadline</p>
+                        <p class="text-lg font-bold text-slate-900 mt-1">26th February</p>
+                        <p class="text-xs text-slate-500">${dayText(dB)} &bull; BOMA's latest return date</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+                    <h3 class="font-bold text-sm text-slate-900 mb-3">14-week timeline</h3>
+                    <div class="overflow-x-auto custom-scrollbar"><div class="min-w-[820px]" style="display:grid;grid-template-columns:repeat(${WEEK_COUNT},minmax(0,1fr));gap:4px">${strip}</div></div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+                        <h3 class="font-bold text-sm text-slate-900">To be done this week</h3>
+                        <p class="text-[11px] text-slate-400 mb-2">${cw === BREAK_WEEK ? 'BOMA is closed this week' : esc(weekMain) + ' (' + esc(weekRange(cw)) + ')'}</p>
+                        ${list(thisWeek, cw === BREAK_WEEK ? 'No site work during the Christmas break.' : 'Nothing open for this week.')}
+                    </div>
+                    <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+                        <h3 class="font-bold text-sm text-slate-900">Starting next</h3>
+                        <p class="text-[11px] text-slate-400 mb-2">${nextW <= WEEK_COUNT ? 'Week ' + nextW + ' (' + esc(weekRange(nextW)) + ')' : 'End of programme'}</p>
+                        ${list(nextWeek, 'Nothing new starts next week.')}
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+                        <h3 class="font-bold text-sm text-slate-900 mb-1">Progress by phase</h3>
+                        <p class="text-[11px] text-slate-400 mb-1">In the order the work starts</p>
+                        ${phaseHtml}
+                    </div>
+                    <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+                        <div class="flex items-center justify-between mb-1">
+                            <h3 class="font-bold text-sm text-slate-900">Latest documents</h3>
+                            <button onclick="switchTab('docs')" class="text-[11px] font-semibold text-brand-600 hover:underline">All documents</button>
+                        </div>
+                        <p class="text-[11px] text-slate-400 mb-1">${docsBOMA.length} BOMA approvals &bull; ${docsBRAC.length} BRAC directives and links</p>
+                        ${docsHtml}
+                        <div class="flex flex-wrap gap-2 mt-4">
+                            <button onclick="switchTab('contract')" class="px-3 py-2 bg-navy-900 text-white text-xs font-semibold rounded-xl shadow"><i class="fa-solid fa-list-check mr-1"></i> Open Contract Tracker</button>
+                            <button onclick="switchTab('docs')" class="px-3 py-2 border border-slate-300 text-slate-700 text-xs font-semibold rounded-xl hover:bg-slate-50"><i class="fa-solid fa-folder-open mr-1"></i> Documentation</button>
+                        </div>
+                    </div>
+                </div>`;
         }
 
         function renderWorkspace1(container) {
@@ -1031,7 +1225,7 @@
             container.innerHTML = `
                 <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm mb-6">
                     <h2 class="text-xl font-bold text-slate-900">2) Contract Tracker (Phased BoQ Works)</h2>
-                    <p class="text-xs text-slate-500 mt-0.5">Phased execution tracking across all 6 Phases (18 BoQ items) against BOMA's 14-week Annex D programme, with two BRAC deadlines.</p>
+                    <p class="text-xs text-slate-500 mt-0.5">Phased execution tracking across all 6 Phases (${boqPhasesData.length} BoQ items) against BOMA's 14-week Annex D programme, with two BRAC deadlines.</p>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
