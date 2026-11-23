@@ -221,13 +221,13 @@
         const PROGRAMME_START = Date.UTC(2026, 10, 23);   // Mon 23 Nov 2026 = BOMA Week 1 (change this if the start slips)
         const WEEK_COUNT = 14;
         const BREAK_WEEK = 6;                              // 28 Dec - 3 Jan, BOMA closed
-        const VALENTINE_WEEK = 12;                         // 8 - 14 Feb
+        const FIRST_DEADLINE_WEEK = 12;                         // 8 - 14 Feb
         const MILESTONES = {
-            valentine: { ms: Date.UTC(2027, 1, 12), short: "Valentine's mark", long: "Valentine's mark - practical completion, office ready to occupy" },
+            first:    { ms: Date.UTC(2027, 1, 12), short: "First deadline", long: "14th February - practical completion, office ready to occupy" },
             final:     { ms: Date.UTC(2027, 1, 26), short: 'Final deadline',   long: 'Final deadline - BOMA return window, snags and handover closed' }
         };
 
-        // b = BOMA's original Annex D bars, v = proposed Valentine plan, c = contingency (only used if v slips)
+        // b = BOMA's original Annex D bars, v = proposed plan to 14th February, c = contingency (only used if v slips)
         const ANNEX_D = [
             { sec: 'A', t: 'Concept and Detail Designs' },
             { r: 'A1.1', t: 'Architectural concept sketches with 3D visualization', b: [1, 1], v: [1, 1] },
@@ -268,7 +268,7 @@
             { r: 'E1.4', t: 'Handover and final milestone payment', b: [14, 14], v: [12, 12], c: [13, 14] }
         ];
 
-        // Target window (BOMA week numbers) for each of the 18 tracker items. tier: valentine (default) or final.
+        // Target window (BOMA week numbers) for each of the 18 tracker items. tier: first (default) or final.
         const BOQ_TARGETS = {
             'P1-01': { w: [1, 1] },  'P1-02': { w: [1, 1] },  'P1-03': { w: [2, 2] },
             'P2-01': { w: [4, 10] }, 'P2-02': { w: [4, 11] }, 'P2-03': { w: [8, 11] },
@@ -298,7 +298,7 @@
         function targetInfo(item) {
             const t = BOQ_TARGETS[item.id];
             if (!t) return null;
-            const tier = t.tier || 'valentine';
+            const tier = t.tier || 'first';
             const due = weekFriday(t.w[1]);
             const startMs = weekStart(t.w[0]);
             const left = daysUntil(due);
@@ -888,11 +888,11 @@
 
             const head = weeks.map(w => {
                 if (w === BREAK_WEEK) return `<th class="bg-slate-800 text-white p-1 w-9 text-[9px] font-bold align-bottom">W${w}</th>`;
-                const isV = w === VALENTINE_WEEK, isF = w === WEEK_COUNT;
-                return `<th class="p-1 w-14 text-center align-bottom border-l border-slate-200 ${isV ? 'bg-rose-50 border-r-2 border-r-rose-500' : ''} ${isF ? 'bg-brand-100' : ''}">
+                const isV = w === FIRST_DEADLINE_WEEK, isF = w === WEEK_COUNT;
+                return `<th class="p-1 w-14 text-center align-bottom border-l border-slate-200 ${isV ? 'bg-slate-100 border-r-2 border-r-slate-700' : ''} ${isF ? 'bg-brand-100' : ''}">
                     <div class="text-[9px] font-bold text-slate-700">W${w}</div>
                     <div class="text-[8px] font-medium text-slate-400 leading-tight">${esc(weekRange(w))}</div>
-                    ${isV ? '<div class="text-[8px] font-bold text-rose-600 mt-0.5"><i class="fa-solid fa-heart"></i> 12 Feb</div>' : ''}
+                    ${isV ? '<div class="text-[8px] font-bold text-slate-700 mt-0.5"><i class="fa-solid fa-calendar-check"></i> 14 Feb</div>' : ''}
                     ${isF ? '<div class="text-[8px] font-bold text-brand-600 mt-0.5"><i class="fa-solid fa-flag-checkered"></i> 26 Feb</div>' : ''}
                 </th>`;
             }).join('');
@@ -904,10 +904,10 @@
                             ? `<td rowspan="${total}" class="bg-slate-800 text-white text-center w-9"><div style="writing-mode:vertical-rl;transform:rotate(180deg)" class="mx-auto text-[10px] font-bold tracking-[0.25em] whitespace-nowrap">CLOSED FOR CHRISTMAS BREAK</div></td>`
                             : '';
                     }
-                    const vline = w === VALENTINE_WEEK ? 'border-r-2 border-r-rose-500' : '';
+                    const vline = w === FIRST_DEADLINE_WEEK ? 'border-r-2 border-r-slate-700' : '';
                     if (r.sec) return `<td class="bg-slate-100 border-l border-slate-200 ${vline}"></td>`;
                     const b = inWin(r.b, w), v = inWin(r.v, w), c = inWin(r.c, w);
-                    return `<td class="p-0 border-l border-slate-100 ${vline} ${w === VALENTINE_WEEK ? 'bg-rose-50/40' : ''}">
+                    return `<td class="p-0 border-l border-slate-100 ${vline} ${w === FIRST_DEADLINE_WEEK ? 'bg-slate-100/60' : ''}">
                         <div class="flex flex-col gap-px px-0.5 py-1 h-7 justify-center">
                             <div class="h-1.5 rounded-sm ${b ? 'bg-slate-400' : ''}"></div>
                             <div class="h-2.5 rounded-sm ${v ? (r.m ? 'bg-amber-500' : 'bg-brand-500') : (c ? 'bg-brand-200 border border-dashed border-brand-500' : '')}"></div>
@@ -941,9 +941,17 @@
                 grouped[item.phase].push({ ...item, globalIdx: idx });
             });
 
-            const dV = daysUntil(MILESTONES.valentine.ms), dF = daysUntil(MILESTONES.final.ms);
+            // Chronological order: items by start week inside each phase, phases by their earliest start week
+            const startOf = i => (BOQ_TARGETS[i.id] ? BOQ_TARGETS[i.id].w[0] : 99);
+            const endOf = i => (BOQ_TARGETS[i.id] ? BOQ_TARGETS[i.id].w[1] : 99);
+            const origOrder = Object.keys(grouped);
+            origOrder.forEach(k => grouped[k].sort((a, b) => startOf(a) - startOf(b) || endOf(a) - endOf(b)));
+            const phaseOrder = origOrder.slice().sort((a, b) =>
+                Math.min(...grouped[a].map(startOf)) - Math.min(...grouped[b].map(startOf)) || origOrder.indexOf(a) - origOrder.indexOf(b));
+
+            const dV = daysUntil(MILESTONES.first.ms), dF = daysUntil(MILESTONES.final.ms);
             const dayText = d => d > 0 ? d + ' days to go' : d === 0 ? 'Today' : Math.abs(d) + ' days past';
-            const workWeeksV = VALENTINE_WEEK - 1;                 // W1-W12 minus the closed week
+            const workWeeksV = FIRST_DEADLINE_WEEK - 1;                 // W1-W12 minus the closed week
             const workWeeksBoma = WEEK_COUNT - 1;
             const stats = { late: 0, start: 0, done: 0 };
             boqPhasesData.forEach(i => { const t = targetInfo(i); if (t && stats[t.state] !== undefined) stats[t.state]++; });
@@ -955,11 +963,18 @@
                 plan:  'bg-slate-100 text-slate-500 border-slate-200'
             };
 
-            const htmlPhases = Object.keys(grouped).map(phaseName => `
+            const htmlPhases = phaseOrder.map(phaseName => {
+                const pMin = Math.min(...grouped[phaseName].map(startOf));
+                const pMax = Math.max(...grouped[phaseName].map(endOf));
+                const pSpan = pMin > WEEK_COUNT ? '' : 'W' + pMin + '-W' + pMax + ' • ' + fmtDay(weekStart(pMin)) + ' - ' + fmtDay(weekFriday(pMax));
+                return `
                 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-6">
                     <div class="bg-navy-800 text-white px-5 py-3 font-bold text-xs flex justify-between items-center">
                         <span><i class="fa-solid fa-layer-group text-brand-200 mr-2"></i>${esc(phaseName)}</span>
-                        <span class="text-[10px] bg-navy-900 px-2 py-0.5 rounded text-slate-300">${grouped[phaseName].length} Schedule Items</span>
+                        <span class="flex items-center gap-2">
+                            <span class="text-[10px] font-semibold text-brand-100">${esc(pSpan)}</span>
+                            <span class="text-[10px] bg-navy-900 px-2 py-0.5 rounded text-slate-300">${grouped[phaseName].length} Schedule Items</span>
+                        </span>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-xs border-collapse min-w-[900px]">
@@ -980,7 +995,7 @@
                                     const targetCell = t ? `
                                         <div class="flex items-center gap-1 flex-wrap">
                                             <span class="font-mono font-bold text-[10px] text-slate-700">${t.weeks}</span>
-                                            <span class="text-[9px] font-bold px-1.5 py-0.5 rounded border ${t.tier === 'valentine' ? 'bg-rose-50 text-rose-600 border-rose-200' : 'bg-brand-100 text-brand-600 border-brand-200'}">${t.tier === 'valentine' ? '<i class="fa-solid fa-heart"></i> Valentine' : '<i class="fa-solid fa-flag-checkered"></i> Final'}</span>
+                                            ${t.tier === 'final' ? '<span class="text-[9px] font-bold px-1.5 py-0.5 rounded border bg-brand-100 text-brand-600 border-brand-200"><i class="fa-solid fa-flag-checkered"></i> Final</span>' : ''}
                                         </div>
                                         <div class="text-[10px] text-slate-500 mt-0.5">by ${esc(fmtDayWk(t.due))}</div>
                                         <span class="inline-block mt-1 text-[9px] font-semibold px-1.5 py-0.5 rounded border ${pill[t.state]}">${esc(t.label)}</span>` : '<span class="text-slate-300">-</span>';
@@ -1010,7 +1025,8 @@
                             </tbody>
                         </table>
                     </div>
-                </div>`).join('');
+                </div>`;
+            }).join('');
 
             container.innerHTML = `
                 <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm mb-6">
@@ -1019,10 +1035,10 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <div class="bg-white rounded-2xl border border-rose-200 p-4 shadow-sm">
-                        <p class="text-[10px] font-bold uppercase tracking-wider text-rose-600"><i class="fa-solid fa-heart mr-1"></i>First deadline - Valentine's mark</p>
-                        <p class="text-lg font-bold text-slate-900 mt-1">${esc(fmtDayWk(MILESTONES.valentine.ms))}</p>
-                        <p class="text-xs text-slate-500">${dayText(dV)} &bull; end of Week ${VALENTINE_WEEK} (Valentine's Day is Sun 14 Feb)</p>
+                    <div class="bg-white rounded-2xl border border-slate-300 p-4 shadow-sm">
+                        <p class="text-[10px] font-bold uppercase tracking-wider text-navy-800"><i class="fa-solid fa-calendar-check mr-1"></i>First deadline - 14th February</p>
+                        <p class="text-lg font-bold text-slate-900 mt-1">${esc(fmtDayWk(MILESTONES.first.ms))}</p>
+                        <p class="text-xs text-slate-500">${dayText(dV)} &bull; end of Week ${FIRST_DEADLINE_WEEK} (14th Feb is a Sunday, so this is the last working day)</p>
                         <p class="text-[11px] text-slate-600 mt-2">Practical completion: works, testing, commissioning and snagging done; office ready to occupy.</p>
                     </div>
                     <div class="bg-white rounded-2xl border border-brand-200 p-4 shadow-sm">
@@ -1033,7 +1049,7 @@
                     </div>
                     <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
                         <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500"><i class="fa-solid fa-gauge-high mr-1"></i>Programme health</p>
-                        <p class="text-lg font-bold text-slate-900 mt-1">${workWeeksV} working weeks to Valentine's</p>
+                        <p class="text-lg font-bold text-slate-900 mt-1">${workWeeksV} working weeks to 14th February</p>
                         <p class="text-xs text-slate-500">BOMA's original plan uses ${workWeeksBoma} (W6 is closed) &bull; plan below compresses it by 2 weeks</p>
                         <p class="text-[11px] mt-2"><span class="font-semibold text-rose-600">${stats.late} overdue</span> &bull; <span class="font-semibold text-amber-600">${stats.start} due to start</span> &bull; <span class="font-semibold text-emerald-600">${stats.done} done</span></p>
                     </div>
@@ -1041,17 +1057,17 @@
 
                 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-6">
                     <div class="px-5 py-3 border-b bg-slate-50 flex flex-wrap items-center justify-between gap-2">
-                        <h3 class="font-bold text-slate-900 text-xs">Annex D programme - BOMA original vs. Valentine's plan</h3>
+                        <h3 class="font-bold text-slate-900 text-xs">Annex D programme - BOMA original vs. plan to finish by 14th February</h3>
                         <div class="flex flex-wrap items-center gap-3 text-[10px] text-slate-600">
                             <span class="flex items-center gap-1"><span class="inline-block w-4 h-1.5 rounded-sm bg-slate-400"></span>BOMA original</span>
-                            <span class="flex items-center gap-1"><span class="inline-block w-4 h-2.5 rounded-sm bg-brand-500"></span>Valentine's plan</span>
+                            <span class="flex items-center gap-1"><span class="inline-block w-4 h-2.5 rounded-sm bg-brand-500"></span>Plan for 14th Feb</span>
                             <span class="flex items-center gap-1"><span class="inline-block w-4 h-2.5 rounded-sm bg-amber-500"></span>Inspection / payment</span>
                             <span class="flex items-center gap-1"><span class="inline-block w-4 h-2.5 rounded-sm bg-brand-200 border border-dashed border-brand-500"></span>Contingency</span>
                         </div>
                     </div>
                     ${buildGantt()}
                     <div class="px-5 py-3 border-t bg-slate-50 text-[11px] text-slate-600 leading-relaxed">
-                        <strong class="text-slate-800">To hit Valentine's, BOMA must agree to:</strong>
+                        <strong class="text-slate-800">To finish by 14th February, BOMA must agree to:</strong>
                         run second fix, cabinets and ceilings in parallel straight after the break (W7-W9);
                         start HVAC and server room a week earlier (W8-W9);
                         overlap glass, doors and fittings (W9-W10);
