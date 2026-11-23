@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BRAC-BOMA Contract Dashboard Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: { 800: '#69475A', 900: '#4A3443', 950: '#30252F' },
+                        brand: { 100: '#F6EAF0', 200: '#E8CCD9', 500: '#A94E73', 600: '#873A5D', 700: '#6E304B' },
+                        canvas: '#F4F3F0'
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #e9e8e4; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #c8c8c4; border-radius: 4px; }
+    </style>
+</head>
+<body class="h-full bg-canvas text-slate-800 antialiased flex flex-col">
+
+    <div id="sidebar-overlay" onclick="toggleMobileSidebar()" class="fixed inset-0 bg-slate-900/60 z-30 hidden lg:hidden backdrop-blur-sm transition-opacity"></div>
+
+    <header class="bg-navy-900 text-white px-4 lg:px-6 py-3 lg:py-4 flex flex-wrap items-center justify-between border-b border-navy-800 shadow-md shrink-0 z-40">
+        <div class="flex items-center space-x-3">
+            <button onclick="toggleMobileSidebar()" class="lg:hidden text-white hover:text-brand-500 p-1.5 focus:outline-none">
+                <i class="fa-solid fa-bars text-xl"></i>
+            </button>
+            <div class="bg-white p-1.5 rounded-lg shadow-sm shrink-0">
+                <img src="data:image/png;base64,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" alt="BRAC" class="block w-16 lg:w-20 h-auto">
+            </div>
+            <div>
+                <h1 class="font-bold text-sm lg:text-lg leading-tight">BRAC-BOMA CONTRACT DASHBOARD TRACKER</h1>
+                <p class="text-[10px] lg:text-xs text-slate-300">Africa Regional Office Fit-Out (The Atrium, Hurlingham - 7,880 sq ft)</p>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-3 mt-2 sm:mt-0">
+            <span id="sync-status" class="text-[10px] lg:text-xs bg-slate-700/60 text-slate-200 border border-slate-500/40 px-2.5 py-1 rounded-lg font-semibold flex items-center gap-1.5">
+                <i class="fa-solid fa-cloud text-xs"></i><span id="sync-status-text">Connecting...</span>
+            </span>
+            <span class="text-[10px] lg:text-xs bg-brand-500/15 text-brand-100 border border-brand-100/20 px-2.5 py-1 rounded-lg font-semibold flex items-center gap-1.5">
+                <i class="fa-solid fa-clock text-xs"></i>
+                Stage: Pre-Commencement Approval (Version 6 Settled)
+            </span>
+            <button id="btn-lock-all" onclick="lockAllSessions()" class="hidden bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold px-3 py-1.5 rounded-xl transition-colors shadow flex items-center space-x-1">
+                <i class="fa-solid fa-lock"></i>
+                <span class="hidden sm:inline">Lock Active Sessions</span>
+            </button>
+        </div>
+    </header>
+
+    <div class="flex-1 flex overflow-hidden relative">
+        <aside id="sidebar-drawer" class="fixed lg:static inset-y-0 left-0 w-72 lg:w-80 bg-navy-950 text-slate-300 flex flex-col justify-between shrink-0 border-r border-navy-800 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-40">
+            <nav class="p-4 space-y-2 overflow-y-auto custom-scrollbar">
+                <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-2 flex justify-between items-center">
+                    <span>Workspaces Navigation</span>
+                    <button onclick="toggleMobileSidebar()" class="lg:hidden text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+
+                <button onclick="switchTab('docs')" id="nav-docs" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-semibold bg-navy-900 text-white shadow-md transition-all">
+                    <div class="flex items-center space-x-3">
+                        <i class="fa-solid fa-folder-open text-brand-500 text-base"></i>
+                        <span class="text-left">1) BOMA-BRAC Documentation Approvals</span>
+                    </div>
+                    <span id="badge-docs" class="bg-navy-800 text-xs px-2 py-0.5 rounded-full font-mono">0</span>
+                </button>
+
+                <button onclick="switchTab('contract')" id="nav-contract" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-semibold text-slate-400 hover:bg-navy-800 hover:text-white transition-all">
+                    <div class="flex items-center space-x-3">
+                        <i class="fa-solid fa-list-check text-brand-500 text-base"></i>
+                        <span class="text-left">2) Contract Tracker (BoQ Phases)</span>
+                    </div>
+                    <span class="bg-navy-800 text-xs px-2 py-0.5 rounded-full font-mono">18</span>
+                </button>
+
+                <button onclick="switchTab('internal')" id="nav-internal" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-semibold text-slate-400 hover:bg-navy-800 hover:text-white transition-all">
+                    <div class="flex items-center space-x-3">
+                        <i class="fa-solid fa-user-lock text-brand-200 text-base"></i>
+                        <span class="text-left">3) BRAC Internal Tracker (ToR Specs)</span>
+                    </div>
+                    <i id="lock-icon-internal" class="fa-solid fa-lock text-brand-200 text-xs"></i>
+                </button>
+
+                <button onclick="switchTab('payments')" id="nav-payments" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-semibold text-slate-400 hover:bg-navy-800 hover:text-white transition-all">
+                    <div class="flex items-center space-x-3">
+                        <i class="fa-solid fa-sack-dollar text-brand-200 text-base"></i>
+                        <span class="text-left">4) Procurement & Payments</span>
+                    </div>
+                    <i id="lock-icon-payments" class="fa-solid fa-lock text-brand-200 text-xs"></i>
+                </button>
+            </nav>
+
+            <div class="p-4 bg-navy-950 border-t border-navy-800 text-xs space-y-2">
+                <div class="flex items-center justify-between">
+                    <span class="text-slate-400 font-semibold">Settled V6 BoQ</span>
+                    <span class="text-brand-100 font-bold bg-brand-500/15 border border-brand-100/20 px-2 py-0.5 rounded">Option 04 Layout</span>
+                </div>
+                <div class="text-slate-300 text-[11px] leading-relaxed">
+                    Total Budget: <strong class="text-white font-mono">KES 24,782,414</strong><br>
+                    Disbursed To Date: <strong class="text-slate-300 font-mono">KES 0 (0%)</strong><br>
+                    <span class="text-slate-400">(Incl. 16% VAT KES 3,418,264)</span><br><span class="text-slate-600">Dashboard build D</span>
+                </div>
+            </div>
+        </aside>
+
+        <main class="flex-1 flex flex-col overflow-hidden bg-canvas">
+            <div class="flex-1 p-4 lg:p-6 overflow-y-auto space-y-6 custom-scrollbar" id="main-content"></div>
+        </main>
+    </div>
+
+    <input type="file" id="global-file-input" accept=".pdf,.jpeg,.jpg,.png,.doc,.docx,.xls,.xlsx" class="hidden" onchange="handleGlobalFileUpload(event)" />
+
+    <div id="pin-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden border border-slate-200 text-center p-6 space-y-4">
+            <div id="pin-icon-box" class="w-14 h-14 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center mx-auto text-2xl">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <div>
+                <h3 id="pin-title" class="font-bold text-slate-900 text-lg">PIN Authentication Required</h3>
+                <p id="pin-desc" class="text-xs text-slate-500 mt-1">Enter authorized security PIN to unlock this restricted workspace.</p>
+            </div>
+            <form onsubmit="verifyPIN(event)" class="space-y-4">
+                <input type="password" id="pin-input" placeholder="Enter Security PIN" autocomplete="off" required class="w-full text-center tracking-widest font-mono text-xl py-3 border border-slate-300 rounded-xl bg-slate-50 focus:outline-none focus:border-navy-900 focus:bg-white">
+                <p id="pin-error" class="text-xs text-rose-600 font-semibold hidden"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Invalid PIN passcode. Access denied.</p>
+                <div class="flex space-x-2 pt-2">
+                    <button type="button" onclick="closePinModal()" class="w-1/2 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 font-semibold text-xs">Cancel</button>
+                    <button type="submit" class="w-1/2 py-2.5 rounded-xl bg-navy-900 hover:bg-navy-800 text-white font-semibold text-xs shadow">Unlock View</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="delete-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden border border-slate-200 p-6 text-center space-y-4">
+            <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto text-xl">
+                <i class="fa-solid fa-trash-can"></i>
+            </div>
+            <div>
+                <h3 class="font-bold text-slate-900 text-base">Delete File Confirmation</h3>
+                <p class="text-xs text-slate-500 mt-1">Are you sure you want to delete this file? It will be removed for everyone.</p>
+            </div>
+            <div class="flex space-x-3 pt-2">
+                <button type="button" onclick="closeDeleteModal()" class="w-1/2 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-semibold text-xs hover:bg-slate-100">No</button>
+                <button type="button" id="btn-confirm-delete" class="w-1/2 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs shadow">Yes</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="link-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-200 p-6 space-y-4">
+            <h3 class="font-bold text-slate-900 text-base">Add Documentation Link / Reference</h3>
+            <form onsubmit="saveDocLink(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Document Title</label>
+                    <input type="text" id="link-title" placeholder="e.g. Approved ToR Option 04 Guidelines" required class="w-full border rounded-xl p-2.5 text-xs">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">URL Link</label>
+                    <input type="url" id="link-url" placeholder="https://..." required class="w-full border rounded-xl p-2.5 text-xs">
+                </div>
+                <div class="flex justify-end space-x-2 pt-2">
+                    <button type="button" onclick="closeLinkModal()" class="px-3 py-2 bg-slate-200 text-slate-700 text-xs rounded-xl font-semibold">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-navy-900 text-white text-xs rounded-xl font-semibold shadow">Add Link</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="file-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden border border-slate-200 p-6 space-y-4">
+            <div class="flex items-center justify-between border-b pb-3">
+                <h3 id="file-modal-title" class="font-bold text-slate-900 text-base">Document Preview</h3>
+                <button onclick="closeFileModal()" class="text-slate-400 hover:text-slate-700 text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="file-modal-content" class="min-h-[250px] max-h-[450px] overflow-y-auto flex items-center justify-center bg-slate-50 rounded-xl border border-slate-200 p-4 text-xs"></div>
+            <div class="flex justify-end pt-2">
+                <button onclick="closeFileModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold text-xs rounded-xl">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed bottom-6 right-6 bg-navy-900 text-white text-xs px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-3 transform translate-y-20 opacity-0 transition-all duration-300 z-50 border border-slate-700">
+        <i class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
+        <span id="toast-message">Saved</span>
+    </div>
+
+    <script>
+        // >>> PASTE YOUR NEW /exec WEB APP URL HERE <<<
+        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyH_0OaYdpKPwQquX4PskbsYsFjskXTRV8Q2A3I1LH3CjaIlpHOz0fphNtaWDB7wCYg/exec";
+
+        const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
+        const POLL_MS = 10000;
+
+        let activeTab = 'docs';
+        let isBRACAuthenticated = false;
+        let isPaymentsAuthenticated = false;
+        let targetAuthTarget = null;
+        let pendingDelete = null;
+        let uploadTargetContext = null;
+        let pendingSyncs = 0;          // >0 while our own writes are still travelling to the sheet
+        let pendingAttach = {};        // uploads not yet confirmed by the sheet
+        let pendingClear = {};         // deletions not yet confirmed by the sheet
+        let fileRegistry = [];         // safe lookup table for inline onclick handlers
+
+        const PIN_BRAC = "AFRICABRAC2026";
+        const PIN_TRACY = "OperationsTracy2026";
+
+        /* ---------- BOMA Annex D programme (14 weeks) + BRAC deadlines ---------- */
+        const DAY_MS = 86400000;
+        const PROGRAMME_START = Date.UTC(2026, 10, 23);   // Mon 23 Nov 2026 = BOMA Week 1 (change this if the start slips)
+        const WEEK_COUNT = 14;
+        const BREAK_WEEK = 6;                              // 28 Dec - 3 Jan, BOMA closed
+        const VALENTINE_WEEK = 12;                         // 8 - 14 Feb
+        const MILESTONES = {
+            valentine: { ms: Date.UTC(2027, 1, 12), short: "Valentine's mark", long: "Valentine's mark - practical completion, office ready to occupy" },
+            final:     { ms: Date.UTC(2027, 1, 26), short: 'Final deadline',   long: 'Final deadline - BOMA return window, snags and handover closed' }
+        };
+
+        // b = BOMA's original Annex D bars, v = proposed Valentine plan, c = contingency (only used if v slips)
+        const ANNEX_D = [
+            { sec: 'A', t: 'Concept and Detail Designs' },
+            { r: 'A1.1', t: 'Architectural concept sketches with 3D visualization', b: [1, 1], v: [1, 1] },
+            { r: 'A1.2', t: 'Architectural, Electrical and Mechanical detail designs', b: [1, 1], v: [1, 1] },
+            { m: 1, t: 'Approval checkpoint', b: [1, 1], v: [1, 1] },
+            { sec: 'B', t: 'Approvals and Mobilization' },
+            { r: 'B1.1', t: 'Approvals permit from NCC', b: [2, 2], v: [2, 2] },
+            { r: 'B1.2', t: 'Mobilization', b: [2, 2], v: [2, 2] },
+            { m: 1, t: 'Approval checkpoint & processing of payment', b: [2, 3], v: [2, 3] },
+            { sec: 'C', t: 'Fit-Out Works' },
+            { r: 'C1.1', t: 'Setting out and marking', b: [3, 3], v: [3, 3] },
+            { r: 'C1.2', t: 'Electrical and mechanical first fix installation', b: [3, 4], v: [3, 4] },
+            { r: 'C1.3', t: 'Self levelling cement screed installation', b: [4, 4], v: [4, 4] },
+            { r: 'C1.4', t: 'Installation of gypsum & glass partition framing', b: [4, 5], v: [4, 5] },
+            { m: 1, t: 'Joint inspection meeting', b: [5, 5], v: [5, 5] },
+            { m: 1, t: 'Processing of payment', b: [5, 5], v: [5, 5] },
+            { r: 'C1.5', t: 'Installation of gypsum partitioning panels', b: [7, 8], v: [7, 7] },
+            { r: 'C1.6', t: 'Floor and wall tiling in kitchen and toilet', b: [8, 8], v: [7, 8] },
+            { r: 'C1.7', t: 'Electrical and mechanical second fix installation', b: [8, 12], v: [7, 9] },
+            { r: 'C1.8', t: 'Installation of the kitchen high and low level cabinets', b: [9, 9], v: [8, 9] },
+            { r: 'C1.9', t: 'Installation of the acoustic ceiling framing and panels', b: [9, 10], v: [8, 9] },
+            { m: 1, t: 'Joint inspection meeting', b: [10, 10], v: [9, 9] },
+            { m: 1, t: 'Processing of payment', b: [10, 10], v: [9, 9] },
+            { r: 'C2.0', t: 'Installation of the glass partitioning panels', b: [11, 12], v: [9, 10] },
+            { r: 'C2.1', t: 'Installation of the doors', b: [11, 12], v: [10, 10] },
+            { r: 'C2.2', t: 'Installation of electrical fittings', b: [12, 12], v: [10, 10] },
+            { r: 'C2.3', t: 'Installation of mechanical fittings', b: [12, 13], v: [10, 11] },
+            { r: 'C2.4', t: 'SPC floor finish installation', b: [13, 13], v: [11, 11] },
+            { sec: 'D', t: 'Finishing Works' },
+            { r: 'D1.1', t: 'Installation of the HVAC units and their accessories', b: [9, 13], v: [8, 10] },
+            { r: 'D1.2', t: 'Server unit complete with cabinet and accessories', b: [10, 13], v: [9, 10] },
+            { r: 'D1.3', t: 'Installation of BRAC branding as advised by client', b: [12, 13], v: [10, 11] },
+            { r: 'D1.4', t: 'Painting and finishing works', b: [9, 13], v: [9, 11] },
+            { sec: 'E', t: 'Handover' },
+            { r: 'E1.1', t: 'Testing and commissioning', b: [13, 13], v: [11, 11] },
+            { r: 'E1.2', t: 'Final inspection and snagging', b: [13, 14], v: [12, 12] },
+            { r: 'E1.3', t: 'Rectification of snags', b: [14, 14], v: [12, 12], c: [13, 13] },
+            { r: 'E1.4', t: 'Handover and final milestone payment', b: [14, 14], v: [12, 12], c: [13, 14] }
+        ];
+
+        // Target window (BOMA week numbers) for each of the 18 tracker items. tier: valentine (default) or final.
+        const BOQ_TARGETS = {
+            'P1-01': { w: [1, 1] },  'P1-02': { w: [1, 1] },  'P1-03': { w: [2, 2] },
+            'P2-01': { w: [4, 10] }, 'P2-02': { w: [4, 11] }, 'P2-03': { w: [8, 11] },
+            'P3-01': { w: [3, 10] }, 'P3-02': { w: [8, 11] }, 'P3-03': { w: [3, 8] },
+            'P4-01': { w: [3, 9] },  'P4-02': { w: [9, 10] }, 'P4-03': { w: [10, 11] },
+            'P5-01': { w: [7, 10] }, 'P5-02': { w: [11, 12] },
+            'P6-01': { w: [12, 12] }, 'P6-02': { w: [11, 12] }, 'P6-03': { w: [13, 14], tier: 'final' }
+        };
+
+        function weekStart(w) { return PROGRAMME_START + (w - 1) * 7 * DAY_MS; }
+        function weekFriday(w) { return weekStart(w) + 4 * DAY_MS; }
+        function fmtDay(ms) { return new Date(ms).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' }); }
+        function fmtDayWk(ms) { return new Date(ms).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' }); }
+        function weekRange(w) {
+            const s = weekStart(w), e = s + 6 * DAY_MS;
+            const sd = new Date(s), ed = new Date(e);
+            return sd.getUTCMonth() === ed.getUTCMonth()
+                ? sd.getUTCDate() + '-' + fmtDay(e)
+                : fmtDay(s) + '-' + fmtDay(e);
+        }
+        function daysUntil(ms) {
+            const t = new Date();
+            return Math.round((ms - Date.UTC(t.getFullYear(), t.getMonth(), t.getDate())) / DAY_MS);
+        }
+        function inWin(win, w) { return !!win && w >= win[0] && w <= win[1]; }
+
+        function targetInfo(item) {
+            const t = BOQ_TARGETS[item.id];
+            if (!t) return null;
+            const tier = t.tier || 'valentine';
+            const due = weekFriday(t.w[1]);
+            const startMs = weekStart(t.w[0]);
+            const left = daysUntil(due);
+            let state = 'plan', label = 'On plan';
+            if (item.status === 'Completed') { state = 'done'; label = 'Done'; }
+            else if (left < 0) { state = 'late'; label = 'Overdue ' + Math.abs(left) + 'd'; }
+            else if (daysUntil(startMs) <= 0 && item.status === 'Pending') { state = 'start'; label = 'Due to start'; }
+            return {
+                tier, due, state, label,
+                weeks: t.w[0] === t.w[1] ? 'W' + t.w[0] : 'W' + t.w[0] + '-W' + t.w[1]
+            };
+        }
+
+        let docsBOMA = [];
+        let docsBRAC = [];
+
+        let boqPhasesData = [
+            { id: "P1-01", phase: "Phase 1: Pre-Construction & Mobilisation", item: "Review site drawings, BoQ, specifications & landlord rules", status: "Pending", confirmed: "Confirmed", comment: "Reviewing NCC permit guidelines", attachment: "", fileData: "" },
+            { id: "P1-02", phase: "Phase 1: Pre-Construction & Mobilisation", item: "3D renders & final site dimensions confirmation", status: "Pending", confirmed: "Confirmed", comment: "Option 04 layout selected", attachment: "", fileData: "" },
+            { id: "P1-03", phase: "Phase 1: Pre-Construction & Mobilisation", item: "Secure contractor approvals (OSHA, NCC, Landlord access)", status: "Pending", confirmed: "Pending Confirmation", comment: "Permit applications in progress", attachment: "", fileData: "" },
+            { id: "P2-01", phase: "Phase 2: Architectural & Interior Works", item: "Gypsum & double-glazed glass office partitions", status: "Pending", confirmed: "Pending Confirmation", comment: "45dB acoustic isolation specified", attachment: "", fileData: "" },
+            { id: "P2-02", phase: "Phase 2: Architectural & Interior Works", item: "Flooring screed, joinery, cabinetry & reception counter", status: "Pending", confirmed: "Pending Confirmation", comment: "Awaiting site possession", attachment: "", fileData: "" },
+            { id: "P2-03", phase: "Phase 2: Architectural & Interior Works", item: "Acoustic treatments, painting & decorative wall finishes", status: "Pending", confirmed: "Pending Confirmation", comment: "Color Palette aligned with brand ToR", attachment: "", fileData: "" },
+            { id: "P3-01", phase: "Phase 3: MEP Works (Electrical, HVAC, Plumbing)", item: "Main DB rewiring, power sockets, isolators & lighting controls", status: "Pending", confirmed: "Pending Confirmation", comment: "High efficiency LED fixtures", attachment: "", fileData: "" },
+            { id: "P3-02", phase: "Phase 3: MEP Works (Electrical, HVAC, Plumbing)", item: "Air conditioning, zonal HVAC adaptation & mechanical exhaust", status: "Pending", confirmed: "Pending Confirmation", comment: "24/7 dedicated Server Room cooling", attachment: "", fileData: "" },
+            { id: "P3-03", phase: "Phase 3: MEP Works (Electrical, HVAC, Plumbing)", item: "Kitchenette plumbing, drainage & washroom installations", status: "Pending", confirmed: "Pending Confirmation", comment: "Auxiliary support zone layout", attachment: "", fileData: "" },
+            { id: "P4-01", phase: "Phase 4: ICT Readiness & Structured Cabling", item: "CAT 6A structured cabling & dual data outlets per desk", status: "Pending", confirmed: "Pending Confirmation", comment: "Min 500 lux lighting + data trunks", attachment: "", fileData: "" },
+            { id: "P4-02", phase: "Phase 4: ICT Readiness & Structured Cabling", item: "Server room rack setup, patch panels & MikroTik/Cisco integration", status: "Pending", confirmed: "Pending Confirmation", comment: "MikroTik CCR1036 + Cisco 9200L", attachment: "", fileData: "" },
+            { id: "P4-03", phase: "Phase 4: ICT Readiness & Structured Cabling", item: "Biometric access control & intercom systems installation", status: "Pending", confirmed: "Pending Confirmation", comment: "Secondary service entrance access", attachment: "", fileData: "" },
+            { id: "P5-01", phase: "Phase 5: Fire Life Safety & Compliance", item: "Smoke detection, fire alarm integration & emergency lighting", status: "Pending", confirmed: "Pending Confirmation", comment: "Landlord base system link", attachment: "", fileData: "" },
+            { id: "P5-02", phase: "Phase 5: Fire Life Safety & Compliance", item: "Fire extinguishers, safety signage & accessibility compliance", status: "Pending", confirmed: "Pending Confirmation", comment: "NCC safety audit compliant", attachment: "", fileData: "" },
+            { id: "P6-01", phase: "Phase 6: Completion, Testing & Handover", item: "Deep site cleaning & debris removal", status: "Pending", confirmed: "Pending Confirmation", comment: "Scheduled pre-occupancy", attachment: "", fileData: "" },
+            { id: "P6-02", phase: "Phase 6: Completion, Testing & Handover", item: "Testing, commissioning & joint snag list resolution", status: "Pending", confirmed: "Pending Confirmation", comment: "BRAC & BOMA joint audit", attachment: "", fileData: "" },
+            { id: "P6-03", phase: "Phase 6: Completion, Testing & Handover", item: "As-built drawings, O&M manuals & 12-month DLP commencement", status: "Pending", confirmed: "Pending Confirmation", comment: "Final signoff", attachment: "", fileData: "" }
+        ];
+
+        let internalDeliberations = [
+            { id: "INT-01", topic: "Pre-Commencement Procurement Approval", owner: "Procurement / Tracy", status: "In Progress", notes: "Finalizing contractor evaluation and procurement approval.", docLink: "", fileData: "" },
+            { id: "INT-02", topic: "Option 04 Spatial Plan Realignment", owner: "Spatial / BRAC Lead", status: "Approved", notes: "Operational zone (7,880 sq ft) split into primary & service zones.", docLink: "", fileData: "" },
+            { id: "INT-03", topic: "Regional Director Executive Suite", owner: "Executive Team", status: "Approved", notes: "Includes self-contained washroom & double-glazed acoustic glass.", docLink: "", fileData: "" },
+            { id: "INT-04", topic: "Departmental Open Clusters", owner: "Programmes / UPGI / MF", status: "Approved", notes: "Programmes (24 pax), Microfinance (14 pax), UPGI (11 pax).", docLink: "", fileData: "" },
+            { id: "INT-05", topic: "3 Permanent Mini-Boardrooms ToR", owner: "Operations / IT", status: "Approved", notes: "V6 configuration with 3 permanent acoustic partition rooms.", docLink: "", fileData: "" },
+            { id: "INT-06", topic: "Secondary Service Zone Facilities", owner: "Facilities / Admin", status: "Approved", notes: "Direct catering path, Cloakroom (3 staff), Mother's Room, Server Room.", docLink: "", fileData: "" }
+        ];
+
+        let procurementTranches = [
+            { id: 1, title: "Payment 1 - Advance Payment (20%)", amount: "KES 4,956,483", status: "Pending Invoice", doc: "", fileData: "", comments: "" },
+            { id: 2, title: "Payment 2 - Design & Approvals (40%)", amount: "KES 9,912,966", status: "Scheduled", doc: "", fileData: "", comments: "" },
+            { id: 3, title: "Payment 3 - 50% Work Progress (25%)", amount: "KES 6,195,604", status: "Scheduled", doc: "", fileData: "", comments: "" },
+            { id: 4, title: "Payment 4 - 100% Completion (10%)", amount: "KES 2,478,241", status: "Scheduled", doc: "", fileData: "", comments: "" },
+            { id: 5, title: "Payment 5 - Retention Release (5%)", amount: "KES 1,239,120", status: "Pending Invoice", doc: "", fileData: "", comments: "" }
+        ];
+
+        /* ---------- helpers ---------- */
+        function esc(s) {
+            return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
+        function getVal(obj, keys) {
+            if (!obj) return "";
+            const wanted = keys.map(k => k.trim().toLowerCase());
+            for (const k of Object.keys(obj)) {
+                if (wanted.includes(k.trim().toLowerCase())) return obj[k];
+            }
+            return "";
+        }
+
+        function norm(v) { return String(v == null ? '' : v).trim().toLowerCase(); }
+
+        function safeDate(v) {
+            if (!v) return '';
+            const d = new Date(v);
+            return isNaN(d.getTime()) ? String(v).slice(0, 10) : d.toISOString().split('T')[0];
+        }
+
+        function regFile(name, type, data) {
+            fileRegistry.push({ name, type, data });
+            return fileRegistry.length - 1;
+        }
+
+        function setSyncStatus(text, ok) {
+            const box = document.getElementById('sync-status');
+            document.getElementById('sync-status-text').innerText = text;
+            box.className = 'text-[10px] lg:text-xs border px-2.5 py-1 rounded-lg font-semibold flex items-center gap-1.5 ' +
+                (ok === true ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                 : ok === false ? 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                 : 'bg-slate-700/60 text-slate-200 border-slate-500/40');
+        }
+
+        function toggleMobileSidebar() {
+            document.getElementById('sidebar-drawer').classList.toggle('-translate-x-full');
+            document.getElementById('sidebar-overlay').classList.toggle('hidden');
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').innerText = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            clearTimeout(showToast._t);
+            showToast._t = setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 2500);
+        }
+
+        /* ---------- cloud read (JSONP) ---------- */
+        function fetchCloudData() {
+            if (pendingSyncs > 0) return;   // never overwrite local changes that are still being saved
+            const callbackName = 'bracCloudCallback_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+            const script = document.createElement('script');
+            const cleanup = () => {
+                try { delete window[callbackName]; } catch (_) { window[callbackName] = undefined; }
+                if (script.parentNode) script.parentNode.removeChild(script);
+            };
+            const timeout = setTimeout(() => { cleanup(); setSyncStatus('Offline - retrying', false); }, 20000);
+
+            window[callbackName] = function (res) {
+                clearTimeout(timeout);
+                cleanup();
+                if (pendingSyncs > 0) return;
+                if (!res || res.status !== 'success' || !res.data) {
+                    console.error('Cloud data response:', res);
+                    setSyncStatus('Server error', false);
+                    return;
+                }
+                try { applyCloudData(res.data); setSyncStatus('Live - shared', true); }
+                catch (err) { console.error(err); setSyncStatus('Data error', false); }
+            };
+            script.onerror = () => { clearTimeout(timeout); cleanup(); setSyncStatus('Cannot reach server', false); };
+            script.src = APPS_SCRIPT_URL + '?callback=' + encodeURIComponent(callbackName) + '&_=' + Date.now();
+            document.head.appendChild(script);
+        }
+
+        function applyCloudData(rows) {
+            const newBOMA = [], newBRAC = [];
+            (rows.docsBoma || []).forEach(row => {
+                const name = String(getVal(row, ['File Name', 'Name']) || 'Document');
+                const type = String(getVal(row, ['File Type', 'Format']) || 'File');
+                const url = String(getVal(row, ['File URL', 'File Data', 'URL']) || '');
+                const uploader = String(getVal(row, ['Uploaded By', 'Category', 'Uploader']) || 'User');
+                const ts = getVal(row, ['Timestamp', 'Date']);
+                if (!name && !url) return;
+                const item = {
+                    id: String(getVal(row, ['Record ID', 'ID']) || (name + ts)),
+                    name, type, format: type, date: safeDate(ts), size: type === 'URL Link' ? 'Web Link' : 'Cloud Stored',
+                    data: url, uploader, isLink: type === 'URL Link'
+                };
+                if (uploader.toUpperCase().includes('BOMA')) newBOMA.push(item); else newBRAC.push(item);
+            });
+            // newest first
+            newBOMA.reverse(); newBRAC.reverse();
+            docsBOMA = newBOMA; docsBRAC = newBRAC;
+            document.getElementById('badge-docs').innerText = docsBOMA.length + docsBRAC.length;
+
+            boqPhasesData.forEach(b => { b.attachment = ''; b.fileData = ''; });
+            (rows.boqPhases || []).forEach(row => {
+                const refId = String(getVal(row, ['Ref ID', 'Ref']) || '');
+                const phaseName = String(getVal(row, ['Phase Name', 'Item Description']) || '');
+                const match = boqPhasesData.find(b => (refId && norm(b.id) === norm(refId)) || (phaseName && norm(b.item) === norm(phaseName)));
+                if (!match) return;
+                const url = getVal(row, ['File URL']);
+                const status = getVal(row, ['Status']);
+                const notes = getVal(row, ['Notes']);
+                const conf = getVal(row, ['Confirmation']);
+                if (url) { match.attachment = String(getVal(row, ['File Name']) || 'Attached File'); match.fileData = String(url); }
+                if (status) match.status = String(status);
+                if (conf) match.confirmed = String(conf);
+                if (notes !== '' && notes !== undefined) match.comment = String(notes);
+            });
+
+            internalDeliberations.forEach(d => { d.docLink = ''; d.fileData = ''; });
+            (rows.internalDelib || []).forEach(row => {
+                const refCode = String(getVal(row, ['Ref Code', 'Ref', 'ID']) || '');
+                const topic = String(getVal(row, ['Topic']) || '');
+                const match = internalDeliberations.find(d => (refCode && norm(d.id) === norm(refCode)) || (topic && norm(d.topic) === norm(topic)));
+                if (!match) return;
+                const url = getVal(row, ['File URL']);
+                const status = getVal(row, ['Status']);
+                const notes = getVal(row, ['Notes']);
+                if (url) { match.docLink = String(getVal(row, ['File Name']) || 'Attached File'); match.fileData = String(url); }
+                if (status) match.status = String(status);
+                if (notes !== '' && notes !== undefined) match.notes = String(notes);
+            });
+
+            procurementTranches.forEach(t => { t.doc = ''; t.fileData = ''; });
+            (rows.procTranches || []).forEach(row => {
+                const title = String(getVal(row, ['Tranche Title', 'Title']) || '');
+                const match = procurementTranches.find(t => norm(t.title) === norm(title));
+                if (!match) return;
+                const url = getVal(row, ['File URL']);
+                const status = getVal(row, ['Status']);
+                const comments = getVal(row, ['Comments']);
+                if (url) { match.doc = String(getVal(row, ['File Name']) || 'Attached Invoice'); match.fileData = String(url); }
+                if (status) match.status = String(status);
+                if (comments !== '' && comments !== undefined) match.comments = String(comments);
+            });
+
+            // Keep local uploads/deletions visible until the sheet has caught up
+            const nowTs = Date.now();
+            const findItem = (ws, id) => ws === '2' ? boqPhasesData.find(x => String(x.id) === id)
+                : ws === '3' ? internalDeliberations.find(x => String(x.id) === id)
+                : procurementTranches.find(x => String(x.id) === id);
+            const setName = (ws, it, name, url) => {
+                if (ws === '2') { it.attachment = name; } else if (ws === '3') { it.docLink = name; } else { it.doc = name; }
+                it.fileData = url;
+            };
+            Object.keys(pendingAttach).forEach(k => {
+                const [ws, id] = k.split('|');
+                const p = pendingAttach[k];
+                const it = findItem(ws, id);
+                if (!it) { delete pendingAttach[k]; return; }
+                if (it.fileData && it.fileData !== p.old) { delete pendingAttach[k]; return; }   // sheet confirmed
+                if (nowTs - p.ts < 120000) setName(ws, it, p.name, ''); else delete pendingAttach[k];
+            });
+            Object.keys(pendingClear).forEach(k => {
+                const [ws, id] = k.split('|');
+                const it = findItem(ws, id);
+                if (!it || !it.fileData) { delete pendingClear[k]; return; }                      // sheet confirmed
+                if (nowTs - pendingClear[k] < 60000) setName(ws, it, '', ''); else delete pendingClear[k];
+            });
+
+            // Don't wipe what someone is typing / choosing right now
+            const ae = document.activeElement;
+            const editing = ae && ['INPUT', 'SELECT', 'TEXTAREA'].includes(ae.tagName) && document.getElementById('main-content').contains(ae);
+            const modalOpen = !document.getElementById('file-modal').classList.contains('hidden') ||
+                              !document.getElementById('link-modal').classList.contains('hidden');
+            if (!editing && !modalOpen) renderActiveWorkspace();
+        }
+
+        /* ---------- cloud write (form POST, no-cors) ---------- */
+        function syncToGoogleSheets(payload) {
+            pendingSyncs++;
+            const body = new URLSearchParams();
+            body.append('payload', JSON.stringify(payload));
+            setSyncStatus('Saving...', null);
+            fetch(APPS_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+                body: body.toString()
+            }).then(() => {
+                // Opaque response: wait for the script to finish, then re-read twice to be sure
+                setTimeout(() => { pendingSyncs = Math.max(0, pendingSyncs - 1); fetchCloudData(); showToast('Saved'); }, 3500);
+                setTimeout(fetchCloudData, 10000);
+            }).catch(err => {
+                pendingSyncs = Math.max(0, pendingSyncs - 1);
+                console.error('Save request failed:', err);
+                setSyncStatus('Save failed', false);
+                showToast('Save failed - check connection');
+            });
+        }
+
+        /* ---------- uploads ---------- */
+        function triggerUploadFor(workspace, refId) {
+            uploadTargetContext = { workspace, refId };
+            const input = document.getElementById('global-file-input');
+            input.value = "";
+            input.click();
+        }
+
+        function handleGlobalFileUpload(event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file || !uploadTargetContext) return;
+            if (file.size > MAX_UPLOAD_BYTES) {
+                alert('Please upload a file smaller than 5 MB. Compress large photos or PDFs first.');
+                uploadTargetContext = null; event.target.value = ''; return;
+            }
+            const ext = (file.name.split('.').pop() || 'FILE').toUpperCase();
+            const target = { ...uploadTargetContext };
+            const reader = new FileReader();
+            reader.onerror = () => { showToast('Could not read selected file'); uploadTargetContext = null; };
+            reader.onload = function (e) {
+                const base64Data = e.target.result;
+                showToast('Uploading to shared Drive...');
+                let payload = { workspace: target.workspace, fileName: file.name, fileType: ext, fileData: base64Data };
+
+                if (target.workspace === '1') {
+                    const uploadedBy = target.refId === 'boma' ? 'Kateline (BOMA Statutory)' : 'Kateline (BRAC Directive)';
+                    payload.uploadedBy = uploadedBy;
+                    const item = { id: 'tmp' + Date.now(), name: file.name, type: ext, format: ext, date: new Date().toISOString().split('T')[0], size: 'Uploading...', data: '', uploader: uploadedBy, isLink: false };
+                    if (target.refId === 'boma') docsBOMA.unshift(item); else docsBRAC.unshift(item);
+                    document.getElementById('badge-docs').innerText = docsBOMA.length + docsBRAC.length;
+                } else if (target.workspace === '2') {
+                    const item = boqPhasesData.find(x => x.id === target.refId);
+                    if (item) { payload.refId = item.id; payload.phaseName = item.item; payload.status = item.status; payload.confirmation = item.confirmed; payload.notes = item.comment; pendingAttach['2|' + item.id] = { name: file.name, old: item.fileData || '', ts: Date.now() }; item.attachment = file.name; item.fileData = ''; }
+                } else if (target.workspace === '3') {
+                    const item = internalDeliberations.find(x => x.id === target.refId);
+                    if (item) { payload.refCode = item.id; payload.topic = item.topic; payload.owner = item.owner; payload.status = item.status; payload.notes = item.notes; pendingAttach['3|' + item.id] = { name: file.name, old: item.fileData || '', ts: Date.now() }; item.docLink = file.name; item.fileData = ''; }
+                } else if (target.workspace === '4') {
+                    const item = procurementTranches.find(x => String(x.id) === String(target.refId));
+                    if (item) { payload.trancheTitle = item.title; payload.amount = item.amount; payload.status = item.status; payload.comments = item.comments; pendingAttach['4|' + item.id] = { name: file.name, old: item.fileData || '', ts: Date.now() }; item.doc = file.name; item.fileData = ''; }
+                }
+                renderActiveWorkspace();
+                syncToGoogleSheets(payload);
+                uploadTargetContext = null;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        /* ---------- file viewing / deleting ---------- */
+        function openRef(i) {
+            const f = fileRegistry[i];
+            if (f) viewFile(f.name, f.type, f.data);
+        }
+
+        function viewFile(name, type, data) {
+            if (data && (data.indexOf('http://') === 0 || data.indexOf('https://') === 0)) {
+                window.open(data, '_blank', 'noopener');
+                return;
+            }
+            if (!data) { showToast('Still uploading - it will open in a few seconds'); return; }
+            const modal = document.getElementById('file-modal');
+            document.getElementById('file-modal-title').innerText = 'Document Preview: ' + name;
+            const content = document.getElementById('file-modal-content');
+            content.innerHTML = '<div class="text-center p-6 space-y-3"><i class="fa-solid fa-file-lines text-4xl text-navy-900"></i><p class="font-bold text-slate-800">' + esc(name) + '</p><a href="' + esc(data) + '" download="' + esc(name) + '" class="inline-block px-4 py-2 bg-brand-500 text-white font-semibold rounded-xl text-xs shadow">Download / Open File</a></div>';
+            modal.classList.remove('hidden');
+        }
+
+        function closeFileModal() { document.getElementById('file-modal').classList.add('hidden'); }
+
+        function confirmDeleteRef(i) {
+            const f = fileRegistry[i];
+            if (!f) return;
+            pendingDelete = { name: f.name, url: f.data || '' };
+            document.getElementById('delete-modal').classList.remove('hidden');
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('delete-modal').classList.add('hidden');
+            pendingDelete = null;
+        }
+
+        document.getElementById('btn-confirm-delete').onclick = function () {
+            if (!pendingDelete) return;
+            const target = pendingDelete;           // capture BEFORE the modal clears it
+            closeDeleteModal();
+            const same = d => !(d.name === target.name && (d.data || '') === target.url);
+            docsBOMA = docsBOMA.filter(same);
+            docsBRAC = docsBRAC.filter(same);
+            document.getElementById('badge-docs').innerText = docsBOMA.length + docsBRAC.length;
+            renderActiveWorkspace();
+            syncToGoogleSheets({
+                action: 'delete',
+                workspace: '1',
+                fileName: target.name,
+                fileUrl: target.url
+            });
+        };
+
+        /* ---------- auth / navigation ---------- */
+        function switchTab(tab) {
+            if (window.innerWidth < 1024 && !document.getElementById('sidebar-drawer').classList.contains('-translate-x-full')) toggleMobileSidebar();
+            if (tab === 'internal' && !isBRACAuthenticated) { requestPIN('brac', () => executeTabSwitch('internal')); return; }
+            if (tab === 'payments' && !isPaymentsAuthenticated) { requestPIN('tracy', () => executeTabSwitch('payments')); return; }
+            executeTabSwitch(tab);
+        }
+
+        function executeTabSwitch(tab) {
+            activeTab = tab;
+            ['docs', 'contract', 'internal', 'payments'].forEach(t => {
+                const nav = document.getElementById('nav-' + t);
+                nav.className = (t === tab)
+                    ? "w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-semibold bg-navy-900 text-white shadow-md transition-all"
+                    : "w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-semibold text-slate-400 hover:bg-navy-800 hover:text-white transition-all";
+            });
+            renderActiveWorkspace();
+        }
+
+        function requestPIN(type, onSuccess) {
+            targetAuthTarget = { type, onSuccess };
+            document.getElementById('pin-input').value = "";
+            document.getElementById('pin-error').classList.add('hidden');
+            const iconBox = document.getElementById('pin-icon-box');
+            const title = document.getElementById('pin-title');
+            const desc = document.getElementById('pin-desc');
+            if (type === 'brac') {
+                iconBox.className = "w-14 h-14 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center mx-auto text-2xl";
+                title.innerText = "BRAC Internal Restricted Access";
+                desc.innerText = "Enter PIN to unlock internal ToR specifications workspace.";
+            } else {
+                iconBox.className = "w-14 h-14 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center mx-auto text-2xl";
+                title.innerText = "Procurement & Payments Security";
+                desc.innerText = "Restricted to Tracy & Procurement. Enter PIN.";
+            }
+            document.getElementById('pin-modal').classList.remove('hidden');
+            document.getElementById('pin-input').focus();
+        }
+
+        function closePinModal() {
+            document.getElementById('pin-modal').classList.add('hidden');
+            targetAuthTarget = null;
+        }
+
+        function verifyPIN(e) {
+            e.preventDefault();
+            if (!targetAuthTarget) return;
+            const val = document.getElementById('pin-input').value.trim();
+            if (targetAuthTarget.type === 'brac' && val === PIN_BRAC) {
+                isBRACAuthenticated = true;
+                document.getElementById('lock-icon-internal').className = "fa-solid fa-lock-open text-brand-200 text-xs";
+            } else if (targetAuthTarget.type === 'tracy' && val === PIN_TRACY) {
+                isPaymentsAuthenticated = true;
+                document.getElementById('lock-icon-payments').className = "fa-solid fa-lock-open text-brand-200 text-xs";
+            } else {
+                document.getElementById('pin-error').classList.remove('hidden');
+                return;
+            }
+            const cb = targetAuthTarget.onSuccess;
+            document.getElementById('pin-modal').classList.add('hidden');
+            document.getElementById('btn-lock-all').classList.remove('hidden');
+            targetAuthTarget = null;
+            showToast("Unlocked");
+            if (cb) cb();
+        }
+
+        function lockAllSessions() {
+            isBRACAuthenticated = false;
+            isPaymentsAuthenticated = false;
+            document.getElementById('lock-icon-internal').className = "fa-solid fa-lock text-brand-200 text-xs";
+            document.getElementById('lock-icon-payments').className = "fa-solid fa-lock text-brand-200 text-xs";
+            document.getElementById('btn-lock-all').classList.add('hidden');
+            switchTab('docs');
+            showToast("Locked");
+        }
+
+        /* ---------- links ---------- */
+        function openLinkModal() { document.getElementById('link-modal').classList.remove('hidden'); }
+        function closeLinkModal() { document.getElementById('link-modal').classList.add('hidden'); }
+
+        function saveDocLink(e) {
+            e.preventDefault();
+            const title = document.getElementById('link-title').value.trim();
+            const url = document.getElementById('link-url').value.trim();
+            docsBRAC.unshift({
+                id: 'tmp' + Date.now(), name: title, type: "URL Link", format: "URL Link",
+                date: new Date().toISOString().split('T')[0], size: "Web Link", data: url,
+                uploader: "Kateline (BRAC Directives Link)", isLink: true
+            });
+            document.getElementById('badge-docs').innerText = docsBOMA.length + docsBRAC.length;
+            document.getElementById('link-title').value = '';
+            document.getElementById('link-url').value = '';
+            closeLinkModal();
+            activeTab === 'docs' ? renderActiveWorkspace() : null;
+            syncToGoogleSheets({
+                workspace: "1", fileName: title, fileType: "URL Link", fileData: url,
+                uploadedBy: "Kateline (BRAC Directives Link)"
+            });
+        }
+
+        /* ---------- field updates (all workspaces now saved) ---------- */
+        function saveBoq(index, field, val) {
+            const it = boqPhasesData[index];
+            if (field === 'status') it.status = val;
+            if (field === 'confirmed') it.confirmed = val;
+            if (field === 'comment') it.comment = val;
+            syncToGoogleSheets({
+                workspace: "2", refId: it.id, phaseName: it.item,
+                status: it.status, confirmation: it.confirmed, notes: it.comment
+            });
+        }
+
+        function saveInternal(index, field, val) {
+            const it = internalDeliberations[index];
+            it[field] = val;
+            syncToGoogleSheets({
+                workspace: "3", refCode: it.id, topic: it.topic, owner: it.owner,
+                status: it.status, notes: it.notes
+            });
+        }
+
+        function saveTranche(index, field, val) {
+            const it = procurementTranches[index];
+            it[field] = val;
+            syncToGoogleSheets({
+                workspace: "4", trancheTitle: it.title, amount: it.amount,
+                status: it.status, comments: it.comments
+            });
+        }
+
+        /* ---------- rendering ---------- */
+        function renderActiveWorkspace() {
+            fileRegistry = [];
+            const container = document.getElementById('main-content');
+            const scroll = container.scrollTop;
+            if (activeTab === 'docs') renderWorkspace1(container);
+            else if (activeTab === 'contract') renderWorkspace2(container);
+            else if (activeTab === 'internal') renderWorkspace3(container);
+            else if (activeTab === 'payments') renderWorkspace4(container);
+            container.scrollTop = scroll;
+        }
+
+        function docRow(d, isBoma) {
+            const i = regFile(d.name, d.type, d.data);
+            const icon = d.isLink ? 'fa-solid fa-link text-navy-800' : (isBoma ? 'fa-solid fa-file-pdf text-brand-500' : 'fa-solid fa-file-contract text-navy-800');
+            const sub = isBoma ? `${esc(d.size)} • ${esc(d.uploader)} on ${esc(d.date)}` : `${esc(d.format)} • ${esc(d.size)} • ${esc(d.date)}`;
+            return `
+                <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs">
+                    <div class="flex items-center space-x-3 overflow-hidden">
+                        <i class="${icon} text-lg shrink-0"></i>
+                        <div class="truncate">
+                            <p class="font-semibold text-slate-900 leading-snug truncate">${esc(d.name)}</p>
+                            <p class="text-[10px] text-slate-400">${sub}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2 shrink-0">
+                        <button onclick="openRef(${i})" class="text-slate-500 hover:text-navy-900 p-1" title="Open"><i class="${d.isLink ? 'fa-solid fa-arrow-up-right-from-square' : 'fa-solid fa-eye'}"></i></button>
+                        <button onclick="confirmDeleteRef(${i})" class="text-rose-500 hover:text-rose-700 p-1" title="Delete File"><i class="fa-solid fa-trash-can"></i></button>
+                    </div>
+                </div>`;
+        }
+
+        function attachButton(name, data, uploadCall, cls, clearCall) {
+            const i = regFile(name, 'FILE', data);
+            return `
+                <div class="flex items-center space-x-1">
+                    <button onclick="openRef(${i})" class="truncate max-w-[90px] px-2 py-1 ${cls} font-semibold rounded-lg border text-[10px]" title="${esc(name)}">${esc(name)}</button>
+                    <button onclick="${uploadCall}" class="text-slate-400 hover:text-slate-600 p-1" title="Replace file"><i class="fa-solid fa-arrows-rotate"></i></button>
+                    <button onclick="${clearCall}" class="text-rose-500 hover:text-rose-700 p-1" title="Delete file"><i class="fa-solid fa-trash-can"></i></button>
+                </div>`;
+        }
+
+        function clearAttach(ws, id) {
+            if (!confirm('Delete this attached file for everyone?')) return;
+            pendingClear[ws + '|' + id] = Date.now();
+            delete pendingAttach[ws + '|' + id];
+            let payload = { action: 'clearFile', workspace: ws };
+            if (ws === '2') {
+                const it = boqPhasesData.find(x => x.id === id);
+                if (!it) return;
+                it.attachment = ''; it.fileData = '';
+                payload.refId = it.id; payload.phaseName = it.item;
+            } else if (ws === '3') {
+                const it = internalDeliberations.find(x => x.id === id);
+                if (!it) return;
+                it.docLink = ''; it.fileData = '';
+                payload.refCode = it.id; payload.topic = it.topic;
+            } else if (ws === '4') {
+                const it = procurementTranches.find(x => String(x.id) === String(id));
+                if (!it) return;
+                it.doc = ''; it.fileData = '';
+                payload.trancheTitle = it.title;
+            }
+            renderActiveWorkspace();
+            syncToGoogleSheets(payload);
+        }
+
+        function renderWorkspace1(container) {
+            const htmlBoma = docsBOMA.length === 0
+                ? '<p class="text-xs text-slate-400 italic py-3 text-center">No BOMA statutory approvals uploaded yet (PDF, JPEG).</p>'
+                : docsBOMA.map(d => docRow(d, true)).join('');
+            const htmlBrac = docsBRAC.length === 0
+                ? '<p class="text-xs text-slate-400 italic py-3 text-center">No BRAC ToR, directives, or documentation links uploaded yet.</p>'
+                : docsBRAC.map(d => docRow(d, false)).join('');
+
+            container.innerHTML = `
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm mb-6">
+                    <h2 class="text-xl font-bold text-slate-900">1) BOMA-BRAC Documentation Approvals</h2>
+                    <p class="text-xs text-slate-500 mt-0.5">Central repository for statutory approvals (OSHA, NCC) and BRAC ToR instructional directives. Everything uploaded here is shared with all users.</p>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white rounded-2xl border border-slate-200 p-6 space-y-4 shadow-sm">
+                        <div class="flex items-center justify-between border-b pb-3">
+                            <div>
+                                <h3 class="font-bold text-sm text-slate-900">BOMA Statutory Approvals</h3>
+                                <p class="text-[11px] text-slate-400">OSHA, NCC & Landlord approval files (PDF, JPEG)</p>
+                            </div>
+                            <button onclick="triggerUploadFor('1', 'boma')" class="px-4 py-2 bg-brand-500 text-white font-semibold text-xs rounded-xl shadow"><i class="fa-solid fa-plus mr-1"></i> Upload</button>
+                        </div>
+                        <div class="space-y-2">${htmlBoma}</div>
+                    </div>
+                    <div class="bg-white rounded-2xl border border-slate-200 p-6 space-y-4 shadow-sm">
+                        <div class="flex items-center justify-between border-b pb-3">
+                            <div>
+                                <h3 class="font-bold text-sm text-slate-900">BRAC Directives & ToR Instructions</h3>
+                                <p class="text-[11px] text-slate-400">ToR documents, Word files, Sheets & web links</p>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button onclick="openLinkModal()" class="px-3 py-2 border border-slate-300 text-slate-700 font-semibold text-xs rounded-xl hover:bg-slate-50"><i class="fa-solid fa-link mr-1"></i> Link</button>
+                                <button onclick="triggerUploadFor('1', 'brac')" class="px-4 py-2 bg-navy-900 text-white font-semibold text-xs rounded-xl shadow"><i class="fa-solid fa-plus mr-1"></i> File</button>
+                            </div>
+                        </div>
+                        <div class="space-y-2">${htmlBrac}</div>
+                    </div>
+                </div>`;
+        }
+
+        function buildGantt() {
+            const total = ANNEX_D.length;
+            const weeks = Array.from({ length: WEEK_COUNT }, (_, i) => i + 1);
+
+            const head = weeks.map(w => {
+                if (w === BREAK_WEEK) return `<th class="bg-slate-800 text-white p-1 w-9 text-[9px] font-bold align-bottom">W${w}</th>`;
+                const isV = w === VALENTINE_WEEK, isF = w === WEEK_COUNT;
+                return `<th class="p-1 w-14 text-center align-bottom border-l border-slate-200 ${isV ? 'bg-rose-50 border-r-2 border-r-rose-500' : ''} ${isF ? 'bg-brand-100' : ''}">
+                    <div class="text-[9px] font-bold text-slate-700">W${w}</div>
+                    <div class="text-[8px] font-medium text-slate-400 leading-tight">${esc(weekRange(w))}</div>
+                    ${isV ? '<div class="text-[8px] font-bold text-rose-600 mt-0.5"><i class="fa-solid fa-calendar-check"></i> 14 Feb</div>' : ''}
+                    ${isF ? '<div class="text-[8px] font-bold text-brand-600 mt-0.5"><i class="fa-solid fa-flag-checkered"></i> 26 Feb</div>' : ''}
+                </th>`;
+            }).join('');
+
+            const body = ANNEX_D.map((r, idx) => {
+                const cells = weeks.map(w => {
+                    if (w === BREAK_WEEK) {
+                        return idx === 0
+                            ? `<td rowspan="${total}" class="bg-slate-800 text-white text-center w-9"><div style="writing-mode:vertical-rl;transform:rotate(180deg)" class="mx-auto text-[10px] font-bold tracking-[0.25em] whitespace-nowrap">CLOSED FOR CHRISTMAS BREAK</div></td>`
+                            : '';
+                    }
+                    const vline = w === VALENTINE_WEEK ? 'border-r-2 border-r-rose-500' : '';
+                    if (r.sec) return `<td class="bg-slate-100 border-l border-slate-200 ${vline}"></td>`;
+                    const b = inWin(r.b, w), v = inWin(r.v, w), c = inWin(r.c, w);
+                    return `<td class="p-0 border-l border-slate-100 ${vline} ${w === VALENTINE_WEEK ? 'bg-rose-50/40' : ''}">
+                        <div class="flex flex-col gap-px px-0.5 py-1 h-7 justify-center">
+                            <div class="h-1.5 rounded-sm ${b ? 'bg-slate-400' : ''}"></div>
+                            <div class="h-2.5 rounded-sm ${v ? (r.m ? 'bg-amber-500' : 'bg-brand-500') : (c ? 'bg-brand-200 border border-dashed border-brand-500' : '')}"></div>
+                        </div>
+                    </td>`;
+                }).join('');
+                if (r.sec) {
+                    return `<tr class="border-y border-slate-200"><td class="bg-slate-100 pl-3 font-bold text-navy-800 text-[11px]">${r.sec}</td><td class="bg-slate-100 py-1.5 font-bold text-slate-800 text-[11px]">${esc(r.t)}</td>${cells}</tr>`;
+                }
+                return `<tr class="border-b border-slate-100 hover:bg-slate-50">
+                    <td class="pl-3 font-mono text-[10px] text-slate-500 whitespace-nowrap">${r.m ? '<i class="fa-solid fa-diamond text-amber-500 text-[8px]"></i>' : esc(r.r)}</td>
+                    <td class="py-1 pr-3 text-[11px] ${r.m ? 'italic text-slate-500' : 'text-slate-800'}">${esc(r.t)}</td>${cells}</tr>`;
+            }).join('');
+
+            return `
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="text-left border-collapse w-full min-w-[1080px]">
+                        <thead><tr class="border-b-2 border-slate-300 bg-white">
+                            <th class="pl-3 w-12 text-[9px] uppercase text-slate-400 align-bottom">Ref</th>
+                            <th class="text-[9px] uppercase text-slate-400 align-bottom pb-1">Annex D task</th>${head}
+                        </tr></thead>
+                        <tbody>${body}</tbody>
+                    </table>
+                </div>`;
+        }
+
+        function renderWorkspace2(container) {
+            const grouped = {};
+            boqPhasesData.forEach((item, idx) => {
+                if (!grouped[item.phase]) grouped[item.phase] = [];
+                grouped[item.phase].push({ ...item, globalIdx: idx });
+            });
+
+            // Chronological order: items by start week inside each phase, phases by their earliest start week
+            const startOf = i => (BOQ_TARGETS[i.id] ? BOQ_TARGETS[i.id].w[0] : 99);
+            const endOf = i => (BOQ_TARGETS[i.id] ? BOQ_TARGETS[i.id].w[1] : 99);
+            const origOrder = Object.keys(grouped);
+            origOrder.forEach(k => grouped[k].sort((a, b) => startOf(a) - startOf(b) || endOf(a) - endOf(b)));
+            const phaseOrder = origOrder.slice().sort((a, b) =>
+                Math.min(...grouped[a].map(startOf)) - Math.min(...grouped[b].map(startOf)) || origOrder.indexOf(a) - origOrder.indexOf(b));
+
+            const dV = daysUntil(MILESTONES.valentine.ms), dF = daysUntil(MILESTONES.final.ms);
+            const dayText = d => d > 0 ? d + ' days to go' : d === 0 ? 'Today' : Math.abs(d) + ' days past';
+            const workWeeksV = VALENTINE_WEEK - 1;                 // W1-W12 minus the closed week
+            const workWeeksBoma = WEEK_COUNT - 1;
+            const stats = { late: 0, start: 0, done: 0 };
+            boqPhasesData.forEach(i => { const t = targetInfo(i); if (t && stats[t.state] !== undefined) stats[t.state]++; });
+
+            const pill = {
+                done:  'bg-emerald-100 text-emerald-700 border-emerald-200',
+                late:  'bg-rose-100 text-rose-700 border-rose-200',
+                start: 'bg-amber-100 text-amber-700 border-amber-200',
+                plan:  'bg-slate-100 text-slate-500 border-slate-200'
+            };
+
+            const htmlPhases = phaseOrder.map(phaseName => {
+                const pMin = Math.min(...grouped[phaseName].map(startOf));
+                const pMax = Math.max(...grouped[phaseName].map(endOf));
+                const pSpan = pMin > WEEK_COUNT ? '' : 'W' + pMin + '-W' + pMax + ' • ' + fmtDay(weekStart(pMin)) + ' - ' + fmtDay(weekFriday(pMax));
+                return `
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-6">
+                    <div class="bg-navy-800 text-white px-5 py-3 font-bold text-xs flex justify-between items-center">
+                        <span><i class="fa-solid fa-layer-group text-brand-200 mr-2"></i>${esc(phaseName)}</span>
+                        <span class="flex items-center gap-2">
+                            <span class="text-[10px] font-semibold text-brand-100">${esc(pSpan)}</span>
+                            <span class="text-[10px] bg-navy-900 px-2 py-0.5 rounded text-slate-300">${grouped[phaseName].length} Schedule Items</span>
+                        </span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs border-collapse min-w-[900px]">
+                            <thead>
+                                <tr class="bg-slate-50 border-b font-bold text-slate-600 uppercase text-[10px]">
+                                    <th class="p-3 pl-5 w-16">Ref</th>
+                                    <th class="p-3">BoQ Scheduled Task / Item Description</th>
+                                    <th class="p-3 w-36">Target</th>
+                                    <th class="p-3 w-36">Work Status</th>
+                                    <th class="p-3 w-40">Client BRAC</th>
+                                    <th class="p-3 w-56">Client Comments / Notes</th>
+                                    <th class="p-3 pr-5 w-36">Doc / Attach</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                ${grouped[phaseName].map(i => {
+                                    const t = targetInfo(i);
+                                    const targetCell = t ? `
+                                        <div class="flex items-center gap-1 flex-wrap">
+                                            <span class="font-mono font-bold text-[10px] text-slate-700">${t.weeks}</span>
+                                            ${t.tier === 'final' ? '<span class="text-[9px] font-bold px-1.5 py-0.5 rounded border bg-brand-100 text-brand-600 border-brand-200"><i class="fa-solid fa-flag-checkered"></i> Final</span>' : ''}
+                                        </div>
+                                        <div class="text-[10px] text-slate-500 mt-0.5">by ${esc(fmtDayWk(t.due))}</div>
+                                        <span class="inline-block mt-1 text-[9px] font-semibold px-1.5 py-0.5 rounded border ${pill[t.state]}">${esc(t.label)}</span>` : '<span class="text-slate-300">-</span>';
+                                    return `
+                                    <tr class="hover:bg-slate-50">
+                                        <td class="p-3 pl-5 font-mono font-bold text-navy-800">${esc(i.id)}</td>
+                                        <td class="p-3 font-medium text-slate-900">${esc(i.item)}</td>
+                                        <td class="p-3">${targetCell}</td>
+                                        <td class="p-3">
+                                            <select onchange="saveBoq(${i.globalIdx}, 'status', this.value)" class="bg-slate-100 border border-slate-300 rounded-lg px-2 py-1 text-xs font-semibold">
+                                                ${['Pending', 'Commenced', 'Ongoing', 'Completed'].map(o => `<option value="${o}" ${i.status === o ? 'selected' : ''}>${o}</option>`).join('')}
+                                            </select>
+                                        </td>
+                                        <td class="p-3">
+                                            <select onchange="saveBoq(${i.globalIdx}, 'confirmed', this.value)" class="bg-slate-100 border border-slate-300 rounded-lg px-2 py-1 text-xs font-semibold">
+                                                ${['Pending Confirmation', 'Confirmed'].map(o => `<option value="${o}" ${i.confirmed === o ? 'selected' : ''}>${o}</option>`).join('')}
+                                            </select>
+                                        </td>
+                                        <td class="p-3"><input type="text" value="${esc(i.comment)}" onchange="saveBoq(${i.globalIdx}, 'comment', this.value)" class="w-full bg-slate-50 border rounded-lg px-2 py-1 text-xs"></td>
+                                        <td class="p-3 pr-5">
+                                            ${i.attachment
+                                                ? attachButton(i.attachment, i.fileData, `triggerUploadFor('2','${i.id}')`, 'bg-brand-100 text-brand-600 border-brand-200', `clearAttach('2','${i.id}')`)
+                                                : `<button onclick="triggerUploadFor('2', '${i.id}')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold border flex items-center gap-1"><i class="fa-solid fa-upload text-[10px]"></i><span>Attach</span></button>`}
+                                        </td>
+                                    </tr>`;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>`;
+            }).join('');
+
+            container.innerHTML = `
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm mb-6">
+                    <h2 class="text-xl font-bold text-slate-900">2) Contract Tracker (Phased BoQ Works)</h2>
+                    <p class="text-xs text-slate-500 mt-0.5">Phased execution tracking across all 6 Phases (18 BoQ items) against BOMA's 14-week Annex D programme, with two BRAC deadlines.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="bg-white rounded-2xl border border-rose-200 p-4 shadow-sm">
+                        <p class="text-[10px] font-bold uppercase tracking-wider text-rose-600"><i class="fa-solid fa-calendar-check mr-1"></i>First deadline - 14th February</p>
+                        <p class="text-lg font-bold text-slate-900 mt-1">${esc(fmtDayWk(MILESTONES.valentine.ms))}</p>
+                        <p class="text-xs text-slate-500">${dayText(dV)} &bull; end of Week ${VALENTINE_WEEK} (14th Feb is a Sunday, so this is the last working day)</p>
+                        <p class="text-[11px] text-slate-600 mt-2">Practical completion: works, testing, commissioning and snagging done; office ready to occupy.</p>
+                    </div>
+                    <div class="bg-white rounded-2xl border border-brand-200 p-4 shadow-sm">
+                        <p class="text-[10px] font-bold uppercase tracking-wider text-brand-600"><i class="fa-solid fa-flag-checkered mr-1"></i>Final deadline - end of February</p>
+                        <p class="text-lg font-bold text-slate-900 mt-1">${esc(fmtDayWk(MILESTONES.final.ms))}</p>
+                        <p class="text-xs text-slate-500">${dayText(dF)} &bull; end of Week ${WEEK_COUNT}, BOMA's latest return date</p>
+                        <p class="text-[11px] text-slate-600 mt-2">Contingency window: residual snags, handover pack, as-builts and final milestone payment.</p>
+                    </div>
+                    <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+                        <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500"><i class="fa-solid fa-gauge-high mr-1"></i>Programme health</p>
+                        <p class="text-lg font-bold text-slate-900 mt-1">${workWeeksV} working weeks to 14th February</p>
+                        <p class="text-xs text-slate-500">BOMA's original plan uses ${workWeeksBoma} (W6 is closed) &bull; plan below compresses it by 2 weeks</p>
+                        <p class="text-[11px] mt-2"><span class="font-semibold text-rose-600">${stats.late} overdue</span> &bull; <span class="font-semibold text-amber-600">${stats.start} due to start</span> &bull; <span class="font-semibold text-emerald-600">${stats.done} done</span></p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-6">
+                    <div class="px-5 py-3 border-b bg-slate-50 flex flex-wrap items-center justify-between gap-2">
+                        <h3 class="font-bold text-slate-900 text-xs">Annex D programme - BOMA original vs. plan to finish by 14th February</h3>
+                        <div class="flex flex-wrap items-center gap-3 text-[10px] text-slate-600">
+                            <span class="flex items-center gap-1"><span class="inline-block w-4 h-1.5 rounded-sm bg-slate-400"></span>BOMA original</span>
+                            <span class="flex items-center gap-1"><span class="inline-block w-4 h-2.5 rounded-sm bg-brand-500"></span>Plan for 14th Feb</span>
+                            <span class="flex items-center gap-1"><span class="inline-block w-4 h-2.5 rounded-sm bg-amber-500"></span>Inspection / payment</span>
+                            <span class="flex items-center gap-1"><span class="inline-block w-4 h-2.5 rounded-sm bg-brand-200 border border-dashed border-brand-500"></span>Contingency</span>
+                        </div>
+                    </div>
+                    ${buildGantt()}
+                    <div class="px-5 py-3 border-t bg-slate-50 text-[11px] text-slate-600 leading-relaxed">
+                        <strong class="text-slate-800">To finish by 14th February, BOMA must agree to:</strong>
+                        run second fix, cabinets and ceilings in parallel straight after the break (W7-W9);
+                        start HVAC and server room a week earlier (W8-W9);
+                        overlap glass, doors and fittings (W9-W10);
+                        and finish testing, snagging and rectification inside W11-W12, leaving W13-W14 only as contingency.
+                        The grey bars are read from the printed Annex D, so check them against BOMA's original.
+                    </div>
+                </div>
+
+                <div>${htmlPhases}</div>`;
+        }
+
+        function renderWorkspace3(container) {
+            const rows = internalDeliberations.map((item, idx) => `
+                <tr class="hover:bg-slate-50 border-b border-slate-100">
+                    <td class="p-4 pl-5 font-mono font-bold text-navy-800">${esc(item.id)}</td>
+                    <td class="p-4 font-bold text-slate-900">${esc(item.topic)}</td>
+                    <td class="p-4 text-slate-600 text-xs">${esc(item.owner)}</td>
+                    <td class="p-4">
+                        <select onchange="saveInternal(${idx}, 'status', this.value)" class="bg-slate-100 border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-semibold">
+                            ${['In Progress', 'Approved'].map(o => `<option value="${o}" ${item.status === o ? 'selected' : ''}>${o}</option>`).join('')}
+                        </select>
+                    </td>
+                    <td class="p-4 text-slate-600 text-xs"><input type="text" value="${esc(item.notes)}" onchange="saveInternal(${idx}, 'notes', this.value)" class="w-full bg-slate-50 border rounded-lg p-2 text-xs"></td>
+                    <td class="p-4 pr-5">
+                        ${item.docLink
+                            ? attachButton(item.docLink, item.fileData, `triggerUploadFor('3','${item.id}')`, 'bg-brand-100 text-brand-600 border-brand-200', `clearAttach('3','${item.id}')`)
+                            : `<button onclick="triggerUploadFor('3', '${item.id}')" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold border"><i class="fa-solid fa-upload mr-1"></i> Attach</button>`}
+                    </td>
+                </tr>`).join('');
+
+            container.innerHTML = `
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm mb-6">
+                    <div class="flex items-center space-x-3">
+                        <h2 class="text-xl font-bold text-slate-900">3) BRAC Internal Tracker</h2>
+                        <span class="bg-brand-100 text-brand-600 text-[10px] font-bold px-2 py-0.5 rounded border border-brand-200 uppercase">UNLOCKED</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-0.5">Tracks internal pre-commencement deliberations and spatial specs.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-white rounded-2xl border border-slate-200 p-6 space-y-3 shadow-sm">
+                        <div class="flex items-center space-x-2 text-slate-900 font-bold text-xs uppercase tracking-wider border-b pb-3">
+                            <i class="fa-solid fa-building text-brand-500"></i>
+                            <span>PRIMARY OPERATIONAL ZONE (7,880 SQ FT)</span>
+                        </div>
+                        <ul class="text-xs text-slate-600 space-y-2 leading-relaxed">
+                            <li>• <strong>Executive Suite:</strong> 1 Director Corner Suite with internal washroom & double glazed glass.</li>
+                            <li>• <strong>Director Offices:</strong> Finance & HR (4 pax), Operations (8 pax) with 1400×600mm desks.</li>
+                            <li>• <strong>Private Officer Offices:</strong> 10 smaller suites for Cluster Leads & Heads of Dept.</li>
+                            <li>• <strong>Open Clusters:</strong> Programmes (24 pax), Microfinance (14 pax), UPGI (11 pax).</li>
+                            <li>• <strong>Boardroom & Pods:</strong> 60-pax divisible boardroom (4×10 pax split) + 8 soundproof phone pods.</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white rounded-2xl border border-slate-200 p-6 space-y-3 shadow-sm">
+                        <div class="flex items-center space-x-2 text-slate-900 font-bold text-xs uppercase tracking-wider border-b pb-3">
+                            <i class="fa-solid fa-truck-ramp-box text-brand-500"></i>
+                            <span>SECONDARY SERVICE & SUPPORT ZONE</span>
+                        </div>
+                        <ul class="text-xs text-slate-600 space-y-2 leading-relaxed">
+                            <li>• <strong>Independent Entrance:</strong> Direct pathway for catering deliveries bypassing operational zone.</li>
+                            <li>• <strong>Cloakroom & Utility:</strong> Dedicated storage and cloakroom for 3 service staff.</li>
+                            <li>• <strong>Mother's Room:</strong> Fitted for 3-seater couch & dedicated small refrigerator.</li>
+                            <li>• <strong>ICT Server Room:</strong> MikroTik CCR1036, Cisco 9200L stack, 2kW spare load & Haier 18k BTU A/C.</li>
+                            <li>• <strong>Kitchenette & Dining:</strong> Plumbing for sink, dishwasher, kettle & microwave.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="p-4 border-b flex justify-between items-center bg-slate-50">
+                        <h3 class="font-bold text-slate-900 text-xs">Internal Deliberations & Attachments</h3>
+                        <button onclick="openLinkModal()" class="px-3 py-1.5 bg-navy-900 text-white font-semibold text-xs rounded-xl shadow"><i class="fa-solid fa-link mr-1"></i> Add Link</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs min-w-[800px]">
+                            <thead>
+                                <tr class="bg-slate-50 border-b font-bold text-slate-600 uppercase text-[10px]">
+                                    <th class="p-3 pl-5 w-16">Ref</th>
+                                    <th class="p-3">Topic / Specification Item</th>
+                                    <th class="p-3 w-36">Owner</th>
+                                    <th class="p-3 w-32">Status</th>
+                                    <th class="p-3">Deliberation Notes & Recommendations</th>
+                                    <th class="p-3 pr-5 w-36">Attachment / Doc</th>
+                                </tr>
+                            </thead>
+                            <tbody>${rows}</tbody>
+                        </table>
+                    </div>
+                </div>`;
+        }
+
+        function renderWorkspace4(container) {
+            const rows = procurementTranches.map((t, idx) => `
+                <tr class="hover:bg-slate-50 border-b border-slate-100">
+                    <td class="p-4 pl-5 font-bold text-slate-900">${esc(t.title)}</td>
+                    <td class="p-4 font-mono font-bold text-navy-800">${esc(t.amount)}</td>
+                    <td class="p-4">
+                        <select onchange="saveTranche(${idx}, 'status', this.value)" class="bg-slate-100 border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-semibold">
+                            ${['Pending Invoice', 'Scheduled'].map(o => `<option value="${o}" ${t.status === o ? 'selected' : ''}>${o}</option>`).join('')}
+                        </select>
+                    </td>
+                    <td class="p-4">
+                        ${t.doc
+                            ? attachButton(t.doc, t.fileData, `triggerUploadFor('4','${t.id}')`, 'bg-brand-100 text-brand-600 border-brand-200', `clearAttach('4','${t.id}')`)
+                            : `<button onclick="triggerUploadFor('4', '${t.id}')" class="px-3 py-1.5 bg-brand-100 text-brand-600 border border-brand-200 rounded-lg text-xs font-semibold hover:bg-brand-200"><i class="fa-solid fa-upload mr-1"></i> Upload File</button>`}
+                    </td>
+                    <td class="p-4 pr-5"><input type="text" placeholder="Enter offset note or comment..." value="${esc(t.comments)}" onchange="saveTranche(${idx}, 'comments', this.value)" class="w-full bg-slate-50 border rounded-lg p-2 text-xs"></td>
+                </tr>`).join('');
+
+            container.innerHTML = `
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm mb-6">
+                    <div class="flex items-center space-x-3">
+                        <h2 class="text-xl font-bold text-slate-900">4) Procurement & Payments</h2>
+                        <span class="bg-brand-100 text-brand-600 text-[10px] font-bold px-2 py-0.5 rounded border border-brand-200 uppercase">UNLOCKED</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-0.5">Pre-commencement financial tranches and payment ledger.</p>
+                </div>
+
+                <div class="bg-navy-950 text-white rounded-2xl p-6 shadow-md mb-6 space-y-4 border border-navy-800">
+                    <div class="flex flex-wrap items-center justify-between gap-4">
+                        <div>
+                            <p class="text-xs text-slate-400 font-medium">Total Settled BoQ Budget Envelope</p>
+                            <h3 class="text-2xl font-bold font-mono text-white">KES 24,782,414 <span class="text-xs font-normal text-slate-400">(Incl. 16% VAT)</span></h3>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-400 font-medium">Offset Payments Made To Date</p>
+                            <h3 class="text-2xl font-bold font-mono text-white">KES 0 <span class="text-xs font-normal text-slate-400">(0% Disbursed)</span></h3>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-400 font-medium mb-1">Current Financial Status</p>
+                            <span class="bg-brand-500/15 text-brand-100 border border-brand-100/20 px-3 py-1 rounded-lg font-semibold text-xs">Pre-Commencement Stage</span>
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-[10px] text-slate-400">
+                            <span>Disbursement Progress</span>
+                            <span>KES 0 / KES 24,782,414 (0%)</span>
+                        </div>
+                        <div class="w-full bg-navy-800 h-2 rounded-full overflow-hidden"><div class="bg-brand-500 h-full w-0"></div></div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="p-4 border-b bg-slate-50">
+                        <h3 class="font-bold text-slate-900 text-xs">Scheduled Payment Tranches, Invoices & Offset Ledger</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs min-w-[800px]">
+                            <thead>
+                                <tr class="bg-slate-50 border-b font-bold text-slate-600 uppercase text-[10px]">
+                                    <th class="p-3 pl-5">TRANCHE TITLE</th>
+                                    <th class="p-3 w-40">AMOUNT (KES)</th>
+                                    <th class="p-3 w-40">DISBURSEMENT STATUS</th>
+                                    <th class="p-3 w-36">UPLOAD INVOICE / RECEIPT</th>
+                                    <th class="p-3 pr-5">CONTRIBUTOR COMMENTS & OFFSET NOTES</th>
+                                </tr>
+                            </thead>
+                            <tbody>${rows}</tbody>
+                        </table>
+                    </div>
+                </div>`;
+        }
+
+        renderActiveWorkspace();
+        fetchCloudData();
+        setInterval(fetchCloudData, POLL_MS);
+        document.addEventListener('visibilitychange', () => { if (!document.hidden) fetchCloudData(); });
+    </script>
+</body>
+</html>
