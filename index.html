@@ -23,9 +23,30 @@
     <style>
         body { font-family: 'Inter', sans-serif; }
         .ov-chip { padding: 4px 10px; border-radius: 9999px; border: 1px solid #cbd5e1; font-size: 11px; font-weight: 600; color: #334155; background: #fff; transition: all .15s; }
-        .ov-chip:hover { background: #F6EAF0; border-color: #A94E73; color: #6E304B; }
-        .ov-chip i { color: #A94E73; margin-right: 4px; font-size: 10px; }
+        .ov-chip:hover { background: #E3F1F2; border-color: #23868F; color: #15565C; }
+        .ov-chip i { color: #23868F; margin-right: 4px; font-size: 10px; }
         .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        /* Kate, the guide */
+        .kate-fig { width: 76px; height: 76px; flex-shrink: 0; overflow: visible; }
+        .kate-bob { animation: kateBob 1.9s ease-in-out infinite; transform-origin: 50px 100px; transform-box: view-box; }
+        .kate-head { animation: kateTilt 3.8s ease-in-out infinite; transform-origin: 50px 68px; transform-box: view-box; }
+        .kate-wave { animation: kateWave 2.2s ease-in-out infinite; transform-origin: 78px 84px; transform-box: view-box; }
+        .kate-eyes { animation: kateBlink 4.4s infinite; transform-origin: 50px 44px; transform-box: view-box; }
+        .kate-spark { animation: kateSpark 2.4s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+        .kate-talk .kate-mouth { animation: kateTalk .24s ease-in-out 5 alternate; transform-origin: 50px 56px; transform-box: view-box; }
+        .kate-bubble { position: relative; }
+        .kate-bubble::before { content: ''; position: absolute; left: -5px; top: 22px; width: 10px; height: 10px; background: inherit; border-left: 1px solid #BFDDE0; border-bottom: 1px solid #BFDDE0; transform: rotate(45deg); }
+        .kate-pop { animation: katePop .35s ease-out; }
+        .kate-dot { animation: katePulse 1.6s ease-out infinite; }
+        @keyframes kateBob { 0%,100% { transform: translateY(0) scale(1,1); } 50% { transform: translateY(-3.5px) scale(.985,1.025); } }
+        @keyframes kateTilt { 0%,100% { transform: rotate(-3.5deg); } 50% { transform: rotate(3.5deg); } }
+        @keyframes kateWave { 0%,50%,100% { transform: rotate(0deg); } 8% { transform: rotate(-20deg); } 18% { transform: rotate(7deg); } 28% { transform: rotate(-20deg); } 38% { transform: rotate(7deg); } 46% { transform: rotate(-8deg); } }
+        @keyframes kateBlink { 0%,93%,100% { transform: scaleY(1); } 96% { transform: scaleY(.08); } }
+        @keyframes kateSpark { 0%,100% { transform: scale(.35); opacity: .25; } 50% { transform: scale(1); opacity: 1; } }
+        @keyframes kateTalk { from { transform: scaleY(.55); } to { transform: scaleY(1.12); } }
+        @keyframes katePop { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes katePulse { 0% { box-shadow: 0 0 0 0 rgba(225,29,72,.55); } 100% { box-shadow: 0 0 0 8px rgba(225,29,72,0); } }
+        @media (prefers-reduced-motion: reduce) { .kate-bob, .kate-head, .kate-wave, .kate-eyes, .kate-spark, .kate-dot, .kate-pop, .kate-talk .kate-mouth { animation: none !important; } .kate-spark { opacity: 1; } }
         .custom-scrollbar::-webkit-scrollbar-track { background: #e3eaec; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #b9c6ca; border-radius: 4px; }
     </style>
@@ -956,6 +977,94 @@
             return out;
         }
 
+
+        // To show a real picture of Kate instead of the letter badge, put the image link (or a data: URI) between the quotes.
+        const KATE_IMAGE = '';
+        const KATE_SVG = KATE_IMAGE
+            ? `<img src="${KATE_IMAGE}" alt="Kate, your guide" class="kate-fig" style="border-radius:9999px;object-fit:cover">`
+            : `<svg class="kate-fig" viewBox="0 0 104 100" role="img" aria-label="Kate, your guide, waving hello">
+            <defs>
+                <radialGradient id="kSkin" cx="42%" cy="34%" r="80%"><stop offset="0" stop-color="#93603f"/><stop offset="1" stop-color="#744428"/></radialGradient>
+                <clipPath id="kMouth"><path d="M39.5 55.6 Q50 71.5 60.5 55.6 Q50 58.4 39.5 55.6Z"/></clipPath>
+            </defs>
+            <g transform="translate(9 36)"><path class="kate-spark" d="M0 -5 L1.3 -1.3 L5 0 L1.3 1.3 L0 5 L-1.3 1.3 L-5 0 L-1.3 -1.3Z" fill="#F4B942"/></g>
+            <g transform="translate(16 14)"><path class="kate-spark" style="animation-delay:.8s" d="M0 -5 L1.3 -1.3 L5 0 L1.3 1.3 L0 5 L-1.3 1.3 L-5 0 L-1.3 -1.3Z" fill="#5EEAD4" transform="scale(.7)"/></g>
+            <g transform="translate(91 26)"><path class="kate-spark" style="animation-delay:1.5s" d="M0 -5 L1.3 -1.3 L5 0 L1.3 1.3 L0 5 L-1.3 1.3 L-5 0 L-1.3 -1.3Z" fill="#F4B942" transform="scale(.75)"/></g>
+            <g class="kate-bob">
+                <path d="M43.5 60 L43.5 73 Q50 79 56.5 73 L56.5 60Z" fill="#5d3622"/>
+                <path d="M12 100 C12 79 28 71 50 71 C72 71 88 79 88 100 Z" fill="#1B6D75"/>
+                <path d="M41 71 Q50 95 59 71 Z" fill="#f7f1e8"/>
+                <path d="M37.5 71.5 L49 94 L43.5 72 Z" fill="#15565C"/><path d="M62.5 71.5 L51 94 L56.5 72 Z" fill="#15565C"/>
+                <rect x="21" y="85" width="20" height="9.5" rx="2.2" fill="#fff"/>
+                <text x="31" y="91.8" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="6" font-weight="700" fill="#15565C">Kate</text>
+                <g class="kate-head">
+                    <g fill="#1c120d">
+                        <circle cx="50" cy="38" r="27"/>
+                        <circle cx="26" cy="46" r="11"/><circle cx="74" cy="46" r="11"/>
+                        <circle cx="24" cy="32" r="10"/><circle cx="76" cy="32" r="10"/>
+                        <circle cx="33" cy="18" r="11"/><circle cx="67" cy="18" r="11"/>
+                        <circle cx="50" cy="15" r="11.5"/>
+                    </g>
+                    <path d="M34 12 q3 -3.4 6.4 0 M57 10.5 q3 -3.4 6.4 0 M20 30 q3 -3.4 5.6 0 M74.5 28 q3 -3.4 5.6 0 M22 47 q2.6 -3 5 0 M73 47 q2.6 -3 5 0" stroke="#3d281d" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+                    <path d="M29 40 C30 22 41 15.5 50 15.5 C59 15.5 70 22 71 40" stroke="#F4B942" stroke-width="3.6" stroke-linecap="round" fill="none"/>
+                    <circle cx="31.5" cy="47" r="4.2" fill="#7a4a2f"/><circle cx="68.5" cy="47" r="4.2" fill="#7a4a2f"/>
+                    <circle cx="31.4" cy="53" r="2.6" fill="none" stroke="#F4B942" stroke-width="1.2"/><circle cx="68.6" cy="53" r="2.6" fill="none" stroke="#F4B942" stroke-width="1.2"/>
+                    <path d="M31 42 C31 29 39 24 50 24 C61 24 69 29 69 42 C69 58 61 67.5 50 67.5 C39 67.5 31 58 31 42Z" fill="url(#kSkin)"/>
+                    <path d="M31 41 C30 29 39 23.5 50 23.5 C61 23.5 70 29 69 41 C66.5 34 60 30.5 50 30.5 C40 30.5 33.5 34 31 41Z" fill="#1c120d"/>
+                    <ellipse cx="44" cy="33.4" rx="6" ry="1.8" fill="#fff" opacity=".13" transform="rotate(-8 44 33.4)"/>
+                    <path d="M36.8 38.6 Q41.5 34.4 46.2 37.4 M53.8 37.4 Q58.5 34.4 63.2 38.6" stroke="#1c120d" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+                    <g class="kate-eyes">
+                        <ellipse cx="41.5" cy="44" rx="4.5" ry="5.3" fill="#fff"/><ellipse cx="41.5" cy="44.7" rx="3.3" ry="4.2" fill="#2b1810"/><circle cx="42.7" cy="42.7" r="1.35" fill="#fff"/><circle cx="40.4" cy="46.2" r=".65" fill="#fff"/><path d="M36.7 43.2 Q41.5 37.4 46.3 43.2" stroke="#1c120d" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+                        <ellipse cx="58.5" cy="44" rx="4.5" ry="5.3" fill="#fff"/><ellipse cx="58.5" cy="44.7" rx="3.3" ry="4.2" fill="#2b1810"/><circle cx="59.7" cy="42.7" r="1.35" fill="#fff"/><circle cx="57.4" cy="46.2" r=".65" fill="#fff"/><path d="M53.7 43.2 Q58.5 37.4 63.3 43.2" stroke="#1c120d" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+                        <path d="M36.6 42.4 L34.9 41 M63.4 42.4 L65.1 41" stroke="#1c120d" stroke-width="1.2" stroke-linecap="round"/>
+                    </g>
+                    <circle cx="35.6" cy="54" r="4.2" fill="#e0745b" opacity=".34"/><circle cx="64.4" cy="54" r="4.2" fill="#e0745b" opacity=".34"/>
+                    <path d="M48 50.6 Q50 52.8 52 50.6" stroke="#53301e" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+                    <g class="kate-mouth">
+                        <path d="M39.5 55.6 Q50 71.5 60.5 55.6 Q50 58.4 39.5 55.6Z" fill="#4a1713"/>
+                        <g clip-path="url(#kMouth)">
+                            <ellipse cx="50" cy="66.4" rx="5.6" ry="3.4" fill="#e0707a"/>
+                            <path d="M40 55.6 Q50 59 60 55.6 L59 59.6 Q50 62.4 41 59.6Z" fill="#fff"/>
+                        </g>
+                    </g>
+                    <path d="M38.2 54.6 Q36.8 56.4 38.4 58 M61.8 54.6 Q63.2 56.4 61.6 58" stroke="#5d3622" stroke-width="1" stroke-linecap="round" fill="none"/>
+                </g>
+                <g class="kate-wave">
+                    <path d="M70 92 Q86 88 87 74" stroke="#1B6D75" stroke-width="11" stroke-linecap="round" fill="none"/>
+                    <path d="M87 74 L90.5 58" stroke="#7a4a2f" stroke-width="6.6" stroke-linecap="round" fill="none"/>
+                    <circle cx="91" cy="53" r="5.6" fill="#7a4a2f"/>
+                    <g fill="#7a4a2f">
+                        <ellipse cx="87.2" cy="46.8" rx="1.8" ry="3.7" transform="rotate(-24 87.2 46.8)"/>
+                        <ellipse cx="89.9" cy="45.4" rx="1.8" ry="3.9" transform="rotate(-8 89.9 45.4)"/>
+                        <ellipse cx="92.9" cy="45.4" rx="1.8" ry="3.9" transform="rotate(8 92.9 45.4)"/>
+                        <ellipse cx="95.5" cy="47" rx="1.8" ry="3.5" transform="rotate(25 95.5 47)"/>
+                        <ellipse cx="84.9" cy="53.5" rx="1.9" ry="3.3" transform="rotate(-52 84.9 53.5)"/>
+                    </g>
+                </g>
+            </g>
+        </svg>`;
+
+        /* ---------- Kate's speech bubble: rotates helpful, live messages ---------- */
+        let kateIdx = 0, kateTimer = null, kateHold = false, kateTips = [];
+        function kateSet() {
+            const el = document.getElementById('kate-msg'); if (!el || !kateTips.length) return;
+            const t = kateTips[kateIdx % kateTips.length];
+            el.innerHTML = t.html;
+            el.classList.remove('kate-pop'); void el.offsetWidth; el.classList.add('kate-pop');
+            const fig = document.querySelector('.kate-fig');
+            if (fig) { fig.classList.remove('kate-talk'); void fig.getBoundingClientRect(); fig.classList.add('kate-talk'); setTimeout(() => fig.classList.remove('kate-talk'), 1400); }
+        }
+        function kateAct() { const t = kateTips[kateIdx % kateTips.length]; if (t && t.act) ovAsk(t.act); }
+        function kateNext() { kateIdx = (kateIdx + 1) % kateTips.length; kateSet(); }
+        function kateStart(tips) {
+            kateTips = tips; if (kateIdx >= tips.length) kateIdx = 0;
+            clearInterval(kateTimer);
+            kateTimer = setInterval(() => {
+                if (activeTab !== 'overview' || !document.getElementById('kate-msg')) { clearInterval(kateTimer); return; }
+                if (!kateHold) kateNext();
+            }, 7000);
+        }
+
         function renderOverview(container) {
             const { todayMs, raw: rawWeek, cw } = ovCurrent();
             const sw = ovWeek || cw;
@@ -1030,10 +1139,25 @@
 
             /* ----- Kate's guide ----- */
             const chip = (label, kind) => `<button onclick="ovAsk('${kind}')" class="px-2.5 py-1 rounded-full text-[11px] font-semibold border border-brand-200 text-brand-700 bg-brand-100 hover:bg-brand-200">${label}</button>`;
+            const nLate = groups.late.length;
+            const worksNow = (cw === BREAK_WEEK || rawWeek < 1 || rawWeek > WEEK_COUNT) ? 0 : annexForWeek(cw).filter(r => !r.m).length;
+            const tips = [{ html: "<strong>Hi, I'm Kate!</strong> Questions about this contract? Tap a button, or let me show you where we are.", act: 'progress' }];
+            if (nLate) tips.push({ html: `<strong class="text-rose-600">Heads up:</strong> ${nLate} item${nLate > 1 ? 's are' : ' is'} overdue. Tap to see which.`, act: 'late' });
+            tips.push({ html: `We are <strong>${pct}% complete</strong>: ${groups.done.length} of ${total} BoQ items done, ${groups.prog.length} in progress.`, act: 'progress' });
+            if (rawWeek < 1) tips.push({ html: `Works start on <strong>${esc(fmtDayWk(PROGRAMME_START))}</strong>.`, act: 'week' });
+            else if (rawWeek > WEEK_COUNT) tips.push({ html: 'The 14-week programme window has ended. Check what is still open.', act: 'late' });
+            else if (cw === BREAK_WEEK) tips.push({ html: '<strong>BOMA is closed</strong> for the Christmas break this week. Work resumes on 4 January.', act: 'week' });
+            else tips.push({ html: `<strong>Week ${cw}</strong> has ${worksNow} scheduled task${worksNow === 1 ? '' : 's'} from BOMA. Tap to see them.`, act: 'week' });
+            tips.push({ html: `<strong>${bigDays(dA)} days</strong> ${dA >= 0 ? 'to' : 'past'} 14th February, and ${bigDays(dB)} ${dB >= 0 ? 'to' : 'past'} the final deadline on 26th February.`, act: 'progress' });
+            tips.push({ html: 'Tap any week in the 14-week strip to see what is scheduled that week, now or in the past.', act: 'week' });
+            tips.push({ html: 'Tap a phase to see what has been completed so far.', act: 'phases' });
+            kateStart(tips);
             const guide = `
-                <div class="flex flex-wrap items-center gap-x-3 gap-y-2 bg-white border border-slate-200 rounded-2xl px-3 py-2 shadow-sm">
-                    <span class="w-7 h-7 rounded-full bg-brand-600 text-white text-xs font-bold flex items-center justify-center shrink-0">K</span>
-                    <p class="text-xs text-slate-700"><strong>Hi, I'm Kate.</strong> Questions about this contract? What would you like to see?</p>
+                <div class="flex flex-wrap items-center gap-x-3 gap-y-2 bg-white border border-slate-200 rounded-2xl pl-2 pr-3 py-2 shadow-sm">
+                    <div class="relative shrink-0" style="width:76px;height:76px">${KATE_SVG}${nLate ? '<span class="kate-dot absolute top-1 left-1 w-3.5 h-3.5 rounded-full bg-rose-600 border-2 border-white"></span>' : ''}</div>
+                    <button id="kate-bubble" onclick="kateAct()" onmouseenter="kateHold=true" onmouseleave="kateHold=false" class="kate-bubble text-left flex-1 min-w-[220px] max-w-xl bg-brand-100 border border-brand-200 rounded-2xl px-3 py-2 hover:bg-brand-200 transition-colors">
+                        <span id="kate-msg" class="kate-pop block text-xs text-slate-800 leading-snug">${tips[Math.min(kateIdx, tips.length - 1)].html}</span>
+                    </button>
                     <div class="flex flex-wrap gap-1.5 sm:ml-auto">
                         ${chip('How far are we?', 'progress')}${chip('This week', 'week')}${chip("What's overdue?", 'late')}${chip('By phase', 'phases')}${chip('Documents', 'docs')}${chip('Full tracker', 'tracker')}
                     </div>
