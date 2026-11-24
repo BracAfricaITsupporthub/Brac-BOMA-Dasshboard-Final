@@ -453,7 +453,8 @@
                     name, type, format: type, date: safeDate(ts), size: type === 'URL Link' ? 'Web Link' : 'Cloud Stored',
                     data: url, uploader, isLink: type === 'URL Link'
                 };
-                if (uploader.toUpperCase().includes('BOMA')) newBOMA.push(item); else newBRAC.push(item);
+                const isBomaUp = /\(BOMA Statutory\)/i.test(uploader) || (!/\(BRAC/i.test(uploader) && uploader.toUpperCase().includes('BOMA'));
+                if (isBomaUp) newBOMA.push(item); else newBRAC.push(item);
             });
             // newest first
             newBOMA.reverse(); newBRAC.reverse();
@@ -558,6 +559,46 @@
             });
         }
 
+        /* ---------- who is uploading (name + optional email, remembered on this device) ---------- */
+        function loadWho() { try { return JSON.parse(localStorage.getItem('bracTrackerWho') || '{}'); } catch (e) { return {}; } }
+        function saveWho(w) { try { localStorage.setItem('bracTrackerWho', JSON.stringify(w)); } catch (e) {} }
+        function whoLabel(u) { return String(u || '').replace(/\s*\((BOMA Statutory|BRAC Directives?( Link)?)\)\s*$/i, '').trim(); }
+
+        // Shows a small form; calls done('Name <email>') or does nothing if cancelled.
+        function askWho(done) {
+            const saved = loadWho();
+            const old = document.getElementById('who-modal'); if (old) old.remove();
+            const m = document.createElement('div');
+            m.id = 'who-modal';
+            m.className = 'fixed inset-0 bg-slate-900/80 backdrop-blur-md flex items-center justify-center z-50 p-4';
+            m.innerHTML = `
+                <form class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6" id="who-form">
+                    <h3 class="font-bold text-slate-900 text-base">Who is uploading?</h3>
+                    <p class="text-xs text-slate-500 mt-1">Your name is shown next to what you submit, so the team knows who sent it.</p>
+                    <label class="block text-[11px] font-semibold text-slate-600 mt-4">Your name</label>
+                    <input id="who-name" type="text" required maxlength="60" value="${esc(saved.name || '')}" class="w-full mt-1 border border-slate-300 rounded-lg px-3 py-2 text-sm" placeholder="e.g. Jane Wanjiru">
+                    <label class="block text-[11px] font-semibold text-slate-600 mt-3">Email <span class="font-normal text-slate-400">(optional - visible to everyone with the link)</span></label>
+                    <input id="who-email" type="email" maxlength="80" value="${esc(saved.email || '')}" class="w-full mt-1 border border-slate-300 rounded-lg px-3 py-2 text-sm" placeholder="name@organisation.com">
+                    <div class="flex justify-end gap-2 mt-5">
+                        <button type="button" id="who-cancel" class="px-4 py-2 rounded-lg bg-slate-100 text-slate-700 text-xs font-semibold">Cancel</button>
+                        <button type="submit" class="px-4 py-2 rounded-lg bg-navy-900 text-white text-xs font-semibold">Continue</button>
+                    </div>
+                </form>`;
+            document.body.appendChild(m);
+            const close = () => m.remove();
+            m.querySelector('#who-cancel').onclick = () => { close(); uploadTargetContext = null; };
+            m.querySelector('#who-form').onsubmit = ev => {
+                ev.preventDefault();
+                const name = m.querySelector('#who-name').value.trim().replace(/[()<>]/g, '');
+                const email = m.querySelector('#who-email').value.trim().replace(/[()<>\s]/g, '');
+                if (!name) return;
+                saveWho({ name, email });
+                close();
+                done(email ? name + ' <' + email + '>' : name);
+            };
+            setTimeout(() => { const n = m.querySelector('#who-name'); if (n) n.focus(); }, 30);
+        }
+
         /* ---------- uploads ---------- */
         function triggerUploadFor(workspace, refId) {
             uploadTargetContext = { workspace, refId };
@@ -575,6 +616,11 @@
             }
             const ext = (file.name.split('.').pop() || 'FILE').toUpperCase();
             const target = { ...uploadTargetContext };
+            if (target.workspace === '1') { askWho(who => readAndSend(file, ext, target, who)); return; }
+            readAndSend(file, ext, target, '');
+        }
+
+        function readAndSend(file, ext, target, who) {
             const reader = new FileReader();
             reader.onerror = () => { showToast('Could not read selected file'); uploadTargetContext = null; };
             reader.onload = function (e) {
@@ -583,7 +629,7 @@
                 let payload = { workspace: target.workspace, fileName: file.name, fileType: ext, fileData: base64Data };
 
                 if (target.workspace === '1') {
-                    const uploadedBy = target.refId === 'boma' ? 'Kateline (BOMA Statutory)' : 'Kateline (BRAC Directive)';
+                    const uploadedBy = who + (target.refId === 'boma' ? ' (BOMA Statutory)' : ' (BRAC Directive)');
                     payload.uploadedBy = uploadedBy;
                     const item = { id: 'tmp' + Date.now(), name: file.name, type: ext, format: ext, date: new Date().toISOString().split('T')[0], size: 'Uploading...', data: '', uploader: uploadedBy, isLink: false };
                     if (target.refId === 'boma') docsBOMA.unshift(item); else docsBRAC.unshift(item);
@@ -739,10 +785,14 @@
             e.preventDefault();
             const title = document.getElementById('link-title').value.trim();
             const url = document.getElementById('link-url').value.trim();
+            askWho(who => finishDocLink(title, url, who + ' (BRAC Directives Link)'));
+        }
+
+        function finishDocLink(title, url, uploader) {
             docsBRAC.unshift({
                 id: 'tmp' + Date.now(), name: title, type: "URL Link", format: "URL Link",
                 date: new Date().toISOString().split('T')[0], size: "Web Link", data: url,
-                uploader: "Kateline (BRAC Directives Link)", isLink: true
+                uploader: uploader, isLink: true
             });
             document.getElementById('badge-docs').innerText = docsBOMA.length + docsBRAC.length;
             document.getElementById('link-title').value = '';
@@ -751,7 +801,7 @@
             activeTab === 'docs' ? renderActiveWorkspace() : null;
             syncToGoogleSheets({
                 workspace: "1", fileName: title, fileType: "URL Link", fileData: url,
-                uploadedBy: "Kateline (BRAC Directives Link)"
+                uploadedBy: uploader
             });
         }
 
@@ -801,14 +851,14 @@
         function docRow(d, isBoma) {
             const i = regFile(d.name, d.type, d.data);
             const icon = d.isLink ? 'fa-solid fa-link text-navy-800' : (isBoma ? 'fa-solid fa-file-pdf text-brand-500' : 'fa-solid fa-file-contract text-navy-800');
-            const sub = isBoma ? `${esc(d.size)} • ${esc(d.uploader)} on ${esc(d.date)}` : `${esc(d.format)} • ${esc(d.size)} • ${esc(d.date)}`;
+            const sub = isBoma ? `${esc(d.size)} • ${esc(whoLabel(d.uploader))} on ${esc(d.date)}` : `${esc(d.format)} • ${esc(d.size)} • ${esc(whoLabel(d.uploader))} on ${esc(d.date)}`;
             return `
                 <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs">
                     <div class="flex items-center space-x-3 overflow-hidden">
                         <i class="${icon} text-lg shrink-0"></i>
-                        <div class="truncate">
+                        <div class="min-w-0">
                             <p class="font-semibold text-slate-900 leading-snug truncate">${esc(d.name)}</p>
-                            <p class="text-[10px] text-slate-400">${sub}</p>
+                            <p class="text-[10px] text-slate-400" style="white-space:normal">${sub}</p>
                         </div>
                     </div>
                     <div class="flex items-center space-x-2 shrink-0">
@@ -856,6 +906,20 @@
         function ovGo(id) {
             const el = document.getElementById(id);
             if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // Same stage rules as the display patch in Code.gs, so every place that shows the stage agrees with the header.
+        function currentStage() {
+            const isDisb = x => { const v = String(x || '').trim().toLowerCase(); return v === 'disbursed' || v === 'paid'; };
+            const int1 = internalDeliberations.find(d => d.id === 'INT-01');
+            const approved = !!int1 && String(int1.status).toLowerCase() === 'approved';
+            const pay1 = !!procurementTranches[0] && isDisb(procurementTranches[0].status);
+            const anyWork = boqPhasesData.some(b => b.status && b.status !== 'Pending');
+            const allDone = boqPhasesData.every(b => b.status === 'Completed');
+            if (allDone) return 'Completion & Handover';
+            if (anyWork || pay1) return 'Works In Progress';
+            if (approved) return 'Contractor Mobilisation & Advance Payment';
+            return 'Pre-Commencement Procurement Approval';
         }
 
         /* ---------- Dashboard (opening page) ---------- */
@@ -953,7 +1017,7 @@
                             <p class="text-[11px] text-slate-300 mt-2">The Atrium, Hurlingham &bull; 7,880 sq ft &bull; Option 04 layout &bull; KES 24,782,414 incl. 16% VAT</p>
                             <div class="flex flex-wrap gap-2 mt-3 text-[11px] font-semibold">
                                 <span class="px-2.5 py-1 rounded-full bg-white/15 border border-white/20">${esc(weekMain)}${weekSub ? ' &bull; ' + esc(weekSub) : ''}</span>
-                                <span class="px-2.5 py-1 rounded-full bg-white/15 border border-white/20">Works In Progress</span>
+                                <span class="px-2.5 py-1 rounded-full bg-white/15 border border-white/20">${esc(currentStage())}</span>
                             </div>
                         </div>
                         <div class="flex items-center gap-6 sm:gap-8">
@@ -1441,7 +1505,7 @@
                         </div>
                         <div>
                             <p class="text-xs text-slate-400 font-medium mb-1">Current Financial Status</p>
-                            <span class="bg-brand-500/15 text-brand-100 border border-brand-100/20 px-3 py-1 rounded-lg font-semibold text-xs">Pre-Commencement Stage</span>
+                            <span class="bg-brand-500/15 text-brand-100 border border-brand-100/20 px-3 py-1 rounded-lg font-semibold text-xs">${esc(currentStage())}</span>
                         </div>
                     </div>
                     <div class="space-y-1">
